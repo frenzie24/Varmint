@@ -19,11 +19,6 @@ public class tkkStation {
 
     }
 
-    //I DID THIS!! TIM!!
-    public Uri getIconURI(){
-        return Uri.parse("http://www.tshirthell.com/favicon.ico");
-    }
-
     public tkkStation(long _id, String n, BitmapDrawable b, Uri u) {
         id = _id;
         uri = u;

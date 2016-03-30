@@ -154,6 +154,11 @@ public class TkkActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_fetch:
+                while (fm.getBackStackEntryCount() > 0){
+                    fm.popBackStack();
+                }
+                progBar.setVisibility(View.VISIBLE);
+                displaySplashFragment();
                 tuxData.repopulateStations();
                 return true;
             case R.id.action_edit:
@@ -266,7 +271,7 @@ public class TkkActivity extends AppCompatActivity
                 }
             }
         };
-        handler.postDelayed(r, 8000);
+        handler.postDelayed(r, R.integer.about_screen_delay);
     }
 
     private void displayListView(){
@@ -379,13 +384,13 @@ public class TkkActivity extends AppCompatActivity
     private void setupSmaato(){
         BannerView bv = new BannerView(this);
         bv.setAutoReloadEnabled(true);
-        bv.setAutoReloadFrequency(15);
+        bv.setAutoReloadFrequency(R.integer.smaato_reload_delay);
 
         RelativeLayout mll = (RelativeLayout)findViewById(R.id.ad_container);
         mll.addView(bv, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        bv.getAdSettings().setPublisherId(1100018452);
-        bv.getAdSettings().setAdspaceId(130087931);
+        bv.getAdSettings().setPublisherId(R.integer.smaato_pub_id);
+        bv.getAdSettings().setAdspaceId(R.integer.smaato_ad_id);
         bv.asyncLoadNewBanner();
     }
 }

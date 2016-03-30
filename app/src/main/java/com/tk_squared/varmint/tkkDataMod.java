@@ -69,7 +69,7 @@ public class tkkDataMod {
                 URLConnection con = url.openConnection();
                 InputStream in = con.getInputStream();
                 this.body = fileReader(in);
-                String[] lines = this.body.split("~#%#~");
+                String[] lines = this.body.split(_activity.getResources().getString(R.string.json_line_delimiter));
                 String serverListVersion = lines[0];
                 File vFile = new File(_activity.getApplicationContext().getFilesDir(),_activity.getString(R.string.server_list_version));
 
@@ -100,7 +100,7 @@ public class tkkDataMod {
                 if(update) {
                     this.body = lines[1];
 
-                    lines = this.body.split("~~@~~");
+                    lines = this.body.split(_activity.getResources().getString(R.string.json_line_delimiter));
 
                     for (int i = 0; i < lines.length; ++i) {
                         ++tasks;
@@ -134,7 +134,7 @@ public class tkkDataMod {
                         url = json.getString("url");
                         iconUrl = json.getString("icon");
                         CreateStationTask worker = new CreateStationTask(name, url, iconUrl);
-                        worker.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);;
+                        worker.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -210,7 +210,7 @@ public class tkkDataMod {
         }
 
         protected void onProgressUpdate(Integer... progress){
-            //TODO: make progress tint bar across image
+            //Fuck it
         }
 
         protected void onPostExecute(Integer result){
@@ -267,14 +267,14 @@ public class tkkDataMod {
     //Called to populate the stations list
     private void populateStations(){
         GetServerDataTask reader = new GetServerDataTask();
-        reader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);;
+        reader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
     }
 
     //Deletes current stations list and table entries and pulls fresh list from the server
     public void repopulateStations(){
         instance.deleteAllStations();
         GetServerDataTask reader = new GetServerDataTask(true);
-        reader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);;
+        reader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
     }
 
     public void destroyInstance(){

@@ -46,7 +46,7 @@ public class LoginFragment extends Fragment {
         if(skipButton == null) skipButton = new Button(getActivity());
         info = (TextView)view.findViewById(R.id.info);
         if(info == null) info = new TextView(getActivity());
-        info.setTextColor(Color.rgb(200, 0, 0));
+        info.setTextColor(getResources().getColor(R.color.colorInfoText, null));
 
         loginButton = (LoginButton)view.findViewById(R.id.login_button);
         loginButton.setReadPermissions("user_friends");

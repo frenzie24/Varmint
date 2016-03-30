@@ -99,16 +99,6 @@ public class tkkStationsDataSource {
         dbHelper.close();
     }
 
-    public void addStation(tkkStation s) {
-        ContentValues values = new ContentValues();
-        values.put(MySQLiteHelper.COLUMN_URI, s.getUri().toString());
-        values.put(MySQLiteHelper.COLUMN_NAME, s.getName());
-        values.put(MySQLiteHelper.COLUMN_ICON, s.getIconURI().toString());
-
-        long insertId = database.insert(MySQLiteHelper.TABLE_STATIONS, null, values);
-        s.setIndex(((int) insertId));
-    }
-
     public tkkStation createStation(String n, Uri u, Activity activity) {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_URI, u.toString());

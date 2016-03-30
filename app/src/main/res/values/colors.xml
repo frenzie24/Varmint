@@ -7,4 +7,5 @@
     <color name="colorTextDark">#ffffff</color>
     <color name="colorThemeBackground">#5A371F</color>
     <color name="colorThemeForeground">#000000</color>
+    <color name="colorInfoText">#c00000</color>
 </resources>
