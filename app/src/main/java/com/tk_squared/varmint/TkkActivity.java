@@ -1,5 +1,7 @@
 package com.tk_squared.varmint;
 
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -13,6 +15,9 @@ import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.content.Context;
+import android.content.Intent;
+import android.media.AudioManager;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -46,11 +51,7 @@ public class TkkActivity extends AppCompatActivity
 
     //region Description: Variables and Accessors
     private tkkDataMod tuxData;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
+    private MusicIntentReceiver musicIntentReceiver;
     public tkkDataMod getData() {
         return tuxData;
     }
@@ -79,6 +80,11 @@ public class TkkActivity extends AppCompatActivity
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         return accessToken != null;
     }
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
     //endregion
 
     public TkkActivity() {
@@ -90,6 +96,7 @@ public class TkkActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tkk);
+        musicIntentReceiver = new MusicIntentReceiver(this);
 
         //show Splashscreen and progress indicator
         progBar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -203,6 +210,19 @@ public class TkkActivity extends AppCompatActivity
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
+    }
+
+    @Override
+    public void onPause(){
+        unregisterReceiver(musicIntentReceiver);
+        super.onPause();
+    }
+
+    @Override
+    public void onResume(){
+        IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(musicIntentReceiver, filter);
+        super.onResume();
     }
     //endregion
 

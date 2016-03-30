@@ -21,6 +21,11 @@
         android:theme="@style/AppTheme"
         android:hardwareAccelerated="true"
         android:name="android.support.multidex.MultiDexApplication">
+        <receiver android:name=".MusicIntentReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.HEADSET_PLUG" />
+            </intent-filter>
+        </receiver>
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
         <provider android:authorities="com.facebook.app.FacebookContentProvider196324490724360"
             android:name="com.facebook.FacebookContentProvider"
