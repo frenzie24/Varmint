@@ -44,6 +44,13 @@ public class tkkDataMod {
     private int tasks = 0;
     private int completes = 0;
 
+    //TODO Flesh out the save icon method to replace the icon bitmap file for the station
+    public void saveIcon(int index, Bitmap icon){
+        Log.i("saveIcon: ", "Icon received for " + stations.get(index).getName());
+        Log.i("saveIcon: ", "Icon is " + icon.getWidth() + " X " + icon.getHeight());
+        //save the icon to station at index
+    }
+
     private class GetServerDataTask extends  AsyncTask<Void, Integer, Integer> {
 
         String body;
@@ -69,16 +76,17 @@ public class tkkDataMod {
                 URLConnection con = url.openConnection();
                 InputStream in = con.getInputStream();
                 this.body = fileReader(in);
-                String[] lines = this.body.split(_activity.getResources().getString(R.string.json_line_delimiter));
+                String[] lines = this.body.split("~#%#~");
                 String serverListVersion = lines[0];
                 File vFile = new File(_activity.getApplicationContext().getFilesDir(),_activity.getString(R.string.server_list_version));
 
                 BufferedReader reader;
                 if(!update) {
                     if (!vFile.exists()) {
-                        vFile.createNewFile();
-                        updateListVersion(vFile, serverListVersion);
-                        update = true;
+                        if (vFile.createNewFile()){
+                            updateListVersion(vFile, serverListVersion);
+                            update = true;
+                        }
                     } else {
                         try {
                             reader = new BufferedReader(new FileReader(vFile));
@@ -100,12 +108,10 @@ public class tkkDataMod {
                 if(update) {
                     this.body = lines[1];
 
-                    lines = this.body.split(_activity.getResources().getString(R.string.json_line_delimiter));
-
-                    for (int i = 0; i < lines.length; ++i) {
-                        ++tasks;
-
-                        jsons.add(new JSONObject(lines[i]));
+                    lines = this.body.split("~~@~~");
+                    tasks = lines.length;
+                    for (String s : lines) {
+                        jsons.add(new JSONObject(s));
                     }
                 }
 
@@ -128,13 +134,11 @@ public class tkkDataMod {
                     JSONObject json = jsons.get(i);
                     String name;
                     String url;
-                    String iconUrl;
                     try {
                         name = json.getString("name");
                         url = json.getString("url");
-                        iconUrl = json.getString("icon");
-                        CreateStationTask worker = new CreateStationTask(name, url, iconUrl);
-                        worker.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+                        CreateStationTask worker = new CreateStationTask(name, url);
+                        worker.executeOnExecutor(THREAD_POOL_EXECUTOR);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -176,12 +180,10 @@ public class tkkDataMod {
 
         private Bitmap bitmap;
         private String name;
-        private String iconURL;
         private Uri uri;
 
-        public CreateStationTask(String name, String uri, String iconURL) {
+        public CreateStationTask(String name, String uri) {
             this.name = name;
-            this.iconURL = iconURL;
             this.uri = Uri.parse(uri);
         }
 
@@ -191,26 +193,15 @@ public class tkkDataMod {
             try {
                 //  String
                 if(bitmap == null) {
-                    if(iconURL == null)  iconURL = "http://www.google.com/favicon.ico";
-                    bitmap = BitmapFactory.decodeStream((InputStream) new URL(iconURL).getContent());
+                    bitmap = BitmapFactory.decodeResource(_activity.getApplicationContext().getResources(), R.drawable.ic_launcher);
                 }
 
             }
-            catch(MalformedURLException e){
-                Log.i("MalformedURLException", e.toString());
-                this.bitmap = BitmapFactory.decodeResource(_activity.getApplicationContext().getResources(), R.drawable.ic_launcher);
-                //do nothing
-            }
-            catch (IOException e){
-                Log.i("IOException", "IOException: " + e.toString());
-                Log.i(_activity.getString(R.string.app_name), "Using "+_activity.getString(R.string.app_name)+" icon for station: " + this.name);
-                bitmap = BitmapFactory.decodeResource(_activity.getApplicationContext().getResources(), R.drawable.ic_launcher);
+            catch (Exception e){
+                Log.i("Exception", e.toString());
+
             }
             return 0;
-        }
-
-        protected void onProgressUpdate(Integer... progress){
-            //Fuck it
         }
 
         protected void onPostExecute(Integer result){
@@ -267,36 +258,14 @@ public class tkkDataMod {
     //Called to populate the stations list
     private void populateStations(){
         GetServerDataTask reader = new GetServerDataTask();
-        reader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+        reader.execute();
     }
 
     //Deletes current stations list and table entries and pulls fresh list from the server
     public void repopulateStations(){
         instance.deleteAllStations();
         GetServerDataTask reader = new GetServerDataTask(true);
-        reader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
-    }
-
-    public void destroyInstance(){
-        instance = null;
-    }
-
-    public ArrayList<tkkStation> getStations(){
-        return stations;
-    }
-
-
-
-    public void setStations(ArrayList<tkkStation> s) {
-        if(stations != null){
-            stations.clear();
-        }
-        stations = s;
-    }
-
-    public void addStation(tkkStation s){
-        //dataSource.createStation()
-        stations.add(s);
+        reader.execute();
     }
 
     public void moveStation(int idx, int newIdx){
@@ -315,19 +284,8 @@ public class tkkDataMod {
         }
     }
 
-    public void addStationAt(int idx, tkkStation s){
-        stations.set(idx, s);
-    }
-
-    public void removeStation(tkkStation s){
-        dataSource.deleteStation(s);
-        stations.remove(s);
-    }
-
     public void removeStationAt(int i){
-
         tkkStation s = stations.get(i);
-        //removeStation(s);
         dataSource.deleteStation(s);
         stations.remove(i);
     }
@@ -342,8 +300,34 @@ public class tkkDataMod {
         return stations.get(idx);
     }
 
+    //region Description:Unused methods according to AS
+    public void addStationAt(int idx, tkkStation s){
+        stations.set(idx, s);
+    }
 
+    public void removeStation(tkkStation s){
+        dataSource.deleteStation(s);
+        stations.remove(s);
+    }
 
+    public void setStations(ArrayList<tkkStation> s) {
+        if(stations != null){
+            stations.clear();
+        }
+        stations = s;
+    }
 
+    public void addStation(tkkStation s){
+        //dataSource.createStation()
+        stations.add(s);
+    }
 
+    public void destroyInstance(){
+        instance = null;
+    }
+
+    public ArrayList<tkkStation> getStations(){
+        return stations;
+    }
+    //endregion
 }

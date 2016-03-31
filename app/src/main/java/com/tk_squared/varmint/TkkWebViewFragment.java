@@ -3,6 +3,7 @@ package com.tk_squared.varmint;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -29,13 +30,17 @@ import com.facebook.share.widget.ShareDialog;
 @SuppressLint("SetJavaScriptEnabled")
 public class TkkWebViewFragment extends Fragment{
 
-    //region Description: Variables and Constructor
+    //region Description: Variables and Constructor and Callbacks
     private WebView webview; public WebView getWebview(){ return webview;}
     private ShareDialog shareDialog;
     private ShareLinkContent linkContent;
     private String currentUrl;
     private String currentName;
+    private Integer currentIndex;
 
+    public interface Callbacks {
+        void onIconReceived(Integer index, Bitmap icon);
+    }
     public TkkWebViewFragment(){}
 
     //endregion
@@ -85,6 +90,9 @@ public class TkkWebViewFragment extends Fragment{
         if (webview == null) {
             webview = (WebView) getView().findViewById(R.id.webview_view);
             webview.getSettings().setJavaScriptEnabled(true);
+            currentName = getArguments().getString("name");
+            currentUrl = getArguments().getString("uri");
+            currentIndex = getArguments().getInt("index");
             webview.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -92,9 +100,13 @@ public class TkkWebViewFragment extends Fragment{
                     return false;
                 }
             });
+            webview.setWebChromeClient(new WebChromeClient() {
+                @Override
+                public void onReceivedIcon(WebView webView, Bitmap icon){
+                    ((TkkWebViewFragment.Callbacks)getActivity()).onIconReceived(currentIndex, icon);
+                }
+            });
 
-            currentName = getArguments().getString("name");
-            currentUrl = getArguments().getString("uri");
             webview.loadUrl(currentUrl);
             Log.i("URL", currentUrl);
         } else {

@@ -11,7 +11,6 @@ public class tkkStation {
     private long id;
     private Uri uri;
     private String name;
-    private Uri iconUri;
     private BitmapDrawable icon;
     private int index;
 
@@ -46,20 +45,11 @@ public class tkkStation {
         index = idx;
         uri = u;
         name = n;
-        iconUri = iU;
     }
 
     public BitmapDrawable getIcon() { return icon; }
 
     public void setIcon(BitmapDrawable i) { icon = i; }
-
-    public Uri getIconUri(){
-        return iconUri;
-    }
-
-    public void setIconUri(Uri iU){
-        iconUri = iU;
-    }
 
     public long getId() { return id; }
 

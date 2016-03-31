@@ -1,10 +1,12 @@
 package com.tk_squared.varmint;
 
-import android.content.BroadcastReceiver;
+import android.app.NotificationManager;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,9 +17,6 @@ import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.content.Context;
-import android.content.Intent;
-import android.media.AudioManager;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -47,44 +45,42 @@ import com.smaato.soma.BannerView;
  * You know it Babe!
  */
 public class TkkActivity extends AppCompatActivity
-        implements TkkListViewFragment.Callbacks, tkkDataMod.Callbacks, LoginFragment.Callbacks {
+        implements TkkListViewFragment.Callbacks, tkkDataMod.Callbacks, LoginFragment.Callbacks, TkkWebViewFragment.Callbacks {
 
     //region Description: Variables and Accessors
     private tkkDataMod tuxData;
-    private MusicIntentReceiver musicIntentReceiver;
-    public tkkDataMod getData() {
-        return tuxData;
-    }
-        public void setData(tkkDataMod data) {
-        tuxData = data;
-    }
-    private ArrayList<tkkStation> tkkData;
-        public ArrayList<tkkStation> getTkkData() {
-        return tkkData;
-    }
-    private FragmentManager fm;
-    private ProgressBar progBar;
-    private static final String TAG = "Ad Server message - ";
-    private boolean listEditEnabled = false;
-        public boolean getListEditEnabled() {
-        return listEditEnabled;
-    }
-        public void setEditEnabled(boolean enableEdit) {
-        listEditEnabled = enableEdit;
-    }
-    private Handler handler = new Handler();
-    private CallbackManager callbackManager;
-        public CallbackManager getCallbackManager() {return callbackManager;}
-
-    public boolean isLoggedIn(){
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        return accessToken != null;
-    }
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
+    public tkkDataMod getData() {
+        return tuxData;
+    }
+    public void setData(tkkDataMod data) {
+        tuxData = data;
+    }
+    private ArrayList<tkkStation> tkkData;
+    public ArrayList<tkkStation> getTkkData() {
+        return tkkData;
+    }
+    private FragmentManager fm;
+    private ProgressBar progBar;
+    private boolean listEditEnabled = false;
+    public boolean getListEditEnabled() {
+        return listEditEnabled;
+    }
+    public void setEditEnabled(boolean enableEdit) {
+        listEditEnabled = enableEdit;
+    }
+    private Handler handler = new Handler();
+    private CallbackManager callbackManager;
+    public CallbackManager getCallbackManager() {return callbackManager;}
+    private MusicIntentReceiver musicIntentReceiver;
+    public boolean isLoggedIn(){
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null;
+    }
     //endregion
 
     public TkkActivity() {
@@ -96,13 +92,14 @@ public class TkkActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tkk);
-        musicIntentReceiver = new MusicIntentReceiver(this);
 
         //show Splashscreen and progress indicator
         progBar = (ProgressBar) findViewById(R.id.progress_bar);
         progBar.setVisibility(View.VISIBLE);
         fm = getFragmentManager();
         displaySplashFragment();
+
+        musicIntentReceiver = new MusicIntentReceiver(this);
 
         //Set up ad support
         setupSmaato();
@@ -154,11 +151,7 @@ public class TkkActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_fetch:
-                while (fm.getBackStackEntryCount() > 0){
-                    fm.popBackStack();
-                }
                 progBar.setVisibility(View.VISIBLE);
-                displaySplashFragment();
                 tuxData.repopulateStations();
                 return true;
             case R.id.action_edit:
@@ -227,6 +220,7 @@ public class TkkActivity extends AppCompatActivity
     public void onResume(){
         IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(musicIntentReceiver, filter);
+        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
         super.onResume();
     }
     //endregion
@@ -271,7 +265,7 @@ public class TkkActivity extends AppCompatActivity
                 }
             }
         };
-        handler.postDelayed(r, R.integer.about_screen_delay);
+        handler.postDelayed(r, 8000);
     }
 
     private void displayListView(){
@@ -292,6 +286,7 @@ public class TkkActivity extends AppCompatActivity
             Bundle args = new Bundle();
             args.putString("uri", station.getUri().toString());
             args.putString("name", station.getName());
+            args.putInt("index", station.getIndex());
             fragment.setArguments(args);
             fm.beginTransaction().replace(R.id.fragment_container, fragment)
                     .addToBackStack("webView")
@@ -320,12 +315,17 @@ public class TkkActivity extends AppCompatActivity
         //Set data and switch to Facebook login fragment
         tkkData = stations;
         progBar.setVisibility(View.GONE);
-        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
         if (isLoggedIn()){
             onLoginFinish();
         } else {
             displayLoginFragment();
         }
+    }
+
+    //callback method for TkkWebViewFragment.Callbacks
+    @Override
+    public void onIconReceived(Integer index, Bitmap icon){
+        tuxData.saveIcon(index, icon);
     }
     //endregion
 
@@ -384,13 +384,13 @@ public class TkkActivity extends AppCompatActivity
     private void setupSmaato(){
         BannerView bv = new BannerView(this);
         bv.setAutoReloadEnabled(true);
-        bv.setAutoReloadFrequency(R.integer.smaato_reload_delay);
+        bv.setAutoReloadFrequency(15);
 
         RelativeLayout mll = (RelativeLayout)findViewById(R.id.ad_container);
         mll.addView(bv, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        bv.getAdSettings().setPublisherId(R.integer.smaato_pub_id);
-        bv.getAdSettings().setAdspaceId(R.integer.smaato_ad_id);
+        bv.getAdSettings().setPublisherId(1100018452);
+        bv.getAdSettings().setAdspaceId(130087931);
         bv.asyncLoadNewBanner();
     }
 }
