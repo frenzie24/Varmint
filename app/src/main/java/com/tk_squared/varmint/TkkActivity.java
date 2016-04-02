@@ -42,13 +42,16 @@ import com.google.android.gms.common.api.GoogleApiClient;
 //Facebook
 import com.facebook.FacebookSdk;
 import com.smaato.soma.BannerView;
+import com.smaato.soma.interstitial.Interstitial;
+import com.smaato.soma.interstitial.InterstitialAdListener;
 
 /**
  * Created by zengo on 1/30/2016.
  * You know it Babe!
  */
 public class TkkActivity extends AppCompatActivity
-        implements TkkListViewFragment.Callbacks, tkkDataMod.Callbacks, LoginFragment.Callbacks, TkkWebViewFragment.Callbacks {
+        implements TkkListViewFragment.Callbacks, tkkDataMod.Callbacks,
+        LoginFragment.Callbacks, TkkWebViewFragment.Callbacks, InterstitialAdListener {
 
     //region Description: Variables and Accessors
     private tkkDataMod tuxData;
@@ -84,6 +87,7 @@ public class TkkActivity extends AppCompatActivity
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         return accessToken != null;
     }
+    private Interstitial interstitial;
     //endregion
 
     public TkkActivity() {
@@ -101,6 +105,10 @@ public class TkkActivity extends AppCompatActivity
         progBar.setVisibility(View.VISIBLE);
         fm = getFragmentManager();
         displaySplashFragment();
+
+        //TODO Test this code
+        setInterstitialAd();
+        interstitial.asyncLoadNewBanner();
 
         musicIntentReceiver = new MusicIntentReceiver(this);
 
@@ -143,7 +151,7 @@ public class TkkActivity extends AppCompatActivity
             listEditEnabled = false;
             ((TkkListViewFragment) fragment)
                     .getListView()
-                    .setRearrangeEnabled(listEditEnabled);
+                    .setRearrangeEnabled(false);
         } else if (fragment instanceof TkkWebViewFragment) {
             menuInflater.inflate(R.menu.menu_webview, menu);
         }
@@ -222,6 +230,12 @@ public class TkkActivity extends AppCompatActivity
 
     @Override
     public void onResume(){
+
+        //TODO Test this code
+        if (fm.findFragmentById(R.id.fragment_container) instanceof SplashFragment){
+            interstitial.asyncLoadNewBanner();
+        }
+
         IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(musicIntentReceiver, filter);
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
@@ -301,6 +315,34 @@ public class TkkActivity extends AppCompatActivity
 
     //region Description: Interface methods
 
+    //region Description:Callback methods for InterstitualListener
+    //TODO Test this code
+    @Override
+    public void onReadyToShow(){
+        interstitial.show();
+    }
+
+    @Override
+    public void onWillShow(){
+        //Rejoice!
+    }
+
+    @Override
+    public void onFailedToLoadAd(){
+        interstitial.destroy();
+    }
+
+    @Override
+    public void onWillClose(){
+        interstitial.destroy();
+    }
+
+    @Override
+    public void onWillOpenLandingPage(){
+        interstitial.destroy();
+    }
+    //endregion
+
     //Callback method for LoginFragment.Callbacks
     @Override
     public void onLoginFinish() {
@@ -367,6 +409,14 @@ public class TkkActivity extends AppCompatActivity
             builder.setContentIntent(pendingIntent);NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             nm.notify(1, builder.build());
         }
+    }
+
+    //TODO test this code
+    private void setInterstitialAd(){
+        interstitial = new Interstitial(this);
+        interstitial.setInterstitialAdListener(this);
+        interstitial.getAdSettings().setPublisherId(1100018452);
+        interstitial.getAdSettings().setAdspaceId(130097262);
     }
 
     private void setupFacebook(){
