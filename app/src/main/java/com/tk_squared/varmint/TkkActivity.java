@@ -1,6 +1,9 @@
 package com.tk_squared.varmint;
 
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
@@ -60,9 +63,9 @@ public class TkkActivity extends AppCompatActivity
     public void setData(tkkDataMod data) {
         tuxData = data;
     }
-    private ArrayList<tkkStation> tkkData;
+    //private ArrayList<tkkStation> tkkData;
     public ArrayList<tkkStation> getTkkData() {
-        return tkkData;
+        return tuxData.getStations();
     }
     private FragmentManager fm;
     private ProgressBar progBar;
@@ -213,6 +216,7 @@ public class TkkActivity extends AppCompatActivity
     @Override
     public void onPause(){
         unregisterReceiver(musicIntentReceiver);
+        sendNotification();
         super.onPause();
     }
 
@@ -313,7 +317,6 @@ public class TkkActivity extends AppCompatActivity
     @Override
     public void onDataLoaded(ArrayList<tkkStation> stations) {
         //Set data and switch to Facebook login fragment
-        tkkData = stations;
         progBar.setVisibility(View.GONE);
         if (isLoggedIn()){
             onLoginFinish();
@@ -346,6 +349,23 @@ public class TkkActivity extends AppCompatActivity
                     row.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
                 }
             }
+        }
+    }
+
+    private void sendNotification(){
+        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
+        if (fragment instanceof TkkWebViewFragment){
+            Notification.Builder builder = new Notification.Builder(this)
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentText(getString(R.string.app_name))
+                    .setContentText(((TkkWebViewFragment) fragment).getCurrentName());
+            Intent intent = new Intent(this, TkkActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this)
+                    .addParentStack(TkkActivity.class)
+                    .addNextIntent(intent);
+            PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(pendingIntent);NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nm.notify(1, builder.build());
         }
     }
 

@@ -35,7 +35,7 @@ public class TkkWebViewFragment extends Fragment{
     private ShareDialog shareDialog;
     private ShareLinkContent linkContent;
     private String currentUrl;
-    private String currentName;
+    private String currentName; public String getCurrentName() {return currentName;}
     private Integer currentIndex;
 
     public interface Callbacks {
@@ -75,6 +75,11 @@ public class TkkWebViewFragment extends Fragment{
         setupWebView();
         //Called to set up share dialog
         prepShareDialog();
+    }
+
+    @Override
+    public void onDestroy(){
+        webview.clearCache(true);
     }
 
     @Override

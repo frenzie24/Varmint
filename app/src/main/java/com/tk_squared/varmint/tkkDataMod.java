@@ -3,6 +3,7 @@ package com.tk_squared.varmint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -44,11 +45,13 @@ public class tkkDataMod {
     private int tasks = 0;
     private int completes = 0;
 
-    //TODO Flesh out the save icon method to replace the icon bitmap file for the station
+    //TODO Check this to see if it works and remove the Log.i
     public void saveIcon(int index, Bitmap icon){
         Log.i("saveIcon: ", "Icon received for " + stations.get(index).getName());
         Log.i("saveIcon: ", "Icon is " + icon.getWidth() + " X " + icon.getHeight());
         //save the icon to station at index
+        stations.get(index).setIcon(new BitmapDrawable(_activity.getResources(), icon));
+        dataSource.updateStation(stations.get(index), _activity);
     }
 
     private class GetServerDataTask extends  AsyncTask<Void, Integer, Integer> {
