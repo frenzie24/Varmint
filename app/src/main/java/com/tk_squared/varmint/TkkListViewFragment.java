@@ -20,7 +20,7 @@ public class TkkListViewFragment extends Fragment implements RearrangeableListVi
 
     //region Description: variables and Interface declarations
     private RearrangeableListView listView;
-        public RearrangeableListView getListView(){return listView;}
+    public RearrangeableListView getListView(){return listView;}
     private int position;
     public Callbacks callbacks;
 
@@ -113,7 +113,7 @@ public class TkkListViewFragment extends Fragment implements RearrangeableListVi
 
         //region Description: variables and Constructor
         private boolean showDelete = true;
-            public void setShowDelete(boolean show) {showDelete = show;}
+        public void setShowDelete(boolean show) {showDelete = show;}
 
         public StationAdapter(Context context, ArrayList<tkkStation> list){
             super(context, 0, list);

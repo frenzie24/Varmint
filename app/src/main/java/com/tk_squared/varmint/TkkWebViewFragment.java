@@ -80,6 +80,7 @@ public class TkkWebViewFragment extends Fragment{
     @Override
     public void onDestroy(){
         webview.clearCache(true);
+        super.onDestroy();
     }
 
     @Override

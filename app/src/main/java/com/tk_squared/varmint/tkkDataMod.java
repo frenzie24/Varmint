@@ -45,13 +45,13 @@ public class tkkDataMod {
     private int tasks = 0;
     private int completes = 0;
 
-    //TODO Check this to see if it works and remove the Log.i
+    //TODO Fix the save function, currently only updates index 0 and remove the Log.i
     public void saveIcon(int index, Bitmap icon){
         Log.i("saveIcon: ", "Icon received for " + stations.get(index).getName());
         Log.i("saveIcon: ", "Icon is " + icon.getWidth() + " X " + icon.getHeight());
         //save the icon to station at index
         stations.get(index).setIcon(new BitmapDrawable(_activity.getResources(), icon));
-        dataSource.updateStation(stations.get(index), _activity);
+        //dataSource.updateStation(stations.get(index), _activity);  ****This didn't work exactly right???
     }
 
     private class GetServerDataTask extends  AsyncTask<Void, Integer, Integer> {

@@ -106,7 +106,7 @@ public class TkkActivity extends AppCompatActivity
         fm = getFragmentManager();
         displaySplashFragment();
 
-        //TODO Test this code
+        //TODO Fix interstitials
         setInterstitialAd();
         interstitial.asyncLoadNewBanner();
 
@@ -230,8 +230,6 @@ public class TkkActivity extends AppCompatActivity
 
     @Override
     public void onResume(){
-
-        //TODO Test this code
         if (fm.findFragmentById(R.id.fragment_container) instanceof SplashFragment){
             interstitial.asyncLoadNewBanner();
         }
@@ -316,7 +314,7 @@ public class TkkActivity extends AppCompatActivity
     //region Description: Interface methods
 
     //region Description:Callback methods for InterstitualListener
-    //TODO Test this code
+    //TODO Check this code
     @Override
     public void onReadyToShow(){
         interstitial.show();
@@ -370,6 +368,7 @@ public class TkkActivity extends AppCompatActivity
     //callback method for TkkWebViewFragment.Callbacks
     @Override
     public void onIconReceived(Integer index, Bitmap icon){
+        Log.i("Icon Callback", "New icon received");
         tuxData.saveIcon(index, icon);
     }
     //endregion
@@ -411,7 +410,7 @@ public class TkkActivity extends AppCompatActivity
         }
     }
 
-    //TODO test this code
+    //TODO Fix this code
     private void setInterstitialAd(){
         interstitial = new Interstitial(this);
         interstitial.setInterstitialAdListener(this);
