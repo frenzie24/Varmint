@@ -82,7 +82,7 @@ public class TkkListViewFragment extends Fragment implements RearrangeableListVi
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         final TkkActivity tkkActivity = (TkkActivity)getActivity();
-        listView = (RearrangeableListView) getView().findViewById(R.id.list);
+        listView = (RearrangeableListView) getActivity().findViewById(R.id.list);
         if (listView == null){
             listView = new RearrangeableListView(getActivity());
         }

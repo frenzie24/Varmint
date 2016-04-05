@@ -94,11 +94,13 @@ public class TkkWebViewFragment extends Fragment{
     private void setupWebView(){
         //Setup the WebView
         if (webview == null) {
-            webview = (WebView) getView().findViewById(R.id.webview_view);
-            webview.getSettings().setJavaScriptEnabled(true);
-            currentName = getArguments().getString("name");
-            currentUrl = getArguments().getString("uri");
-            currentIndex = getArguments().getInt("index");
+            webview = (WebView) getActivity().findViewById(R.id.webview_view);
+            webview.setWebChromeClient(new WebChromeClient() {
+                @Override
+                public void onReceivedIcon(WebView webView, Bitmap icon) {
+                    ((TkkWebViewFragment.Callbacks) getActivity()).onIconReceived(currentIndex, icon);
+                }
+            });
             webview.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -106,12 +108,11 @@ public class TkkWebViewFragment extends Fragment{
                     return false;
                 }
             });
-            webview.setWebChromeClient(new WebChromeClient() {
-                @Override
-                public void onReceivedIcon(WebView webView, Bitmap icon){
-                    ((TkkWebViewFragment.Callbacks)getActivity()).onIconReceived(currentIndex, icon);
-                }
-            });
+            webview.getSettings().setJavaScriptEnabled(true);
+
+            currentName = getArguments().getString("name");
+            currentUrl = getArguments().getString("uri");
+            currentIndex = getArguments().getInt("index");
 
             webview.loadUrl(currentUrl);
             Log.i("URL", currentUrl);

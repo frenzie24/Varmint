@@ -181,6 +181,10 @@ public class tkkStationsDataSource {
         }
         // make sure to close the cursor
         cursor.close();
+        //Set the index
+        for (int i = 0; i < stations.size(); ++i){
+            stations.get(i).setIndex(i);
+        }
         return stations;
     }
 

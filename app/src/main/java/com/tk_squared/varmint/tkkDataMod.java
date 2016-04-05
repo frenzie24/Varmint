@@ -14,8 +14,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,13 +43,13 @@ public class tkkDataMod {
     private int tasks = 0;
     private int completes = 0;
 
-    //TODO Fix the save function, currently only updates index 0 and remove the Log.i
+    //Saves the favicon
     public void saveIcon(int index, Bitmap icon){
         Log.i("saveIcon: ", "Icon received for " + stations.get(index).getName());
         Log.i("saveIcon: ", "Icon is " + icon.getWidth() + " X " + icon.getHeight());
         //save the icon to station at index
         stations.get(index).setIcon(new BitmapDrawable(_activity.getResources(), icon));
-        //dataSource.updateStation(stations.get(index), _activity);  ****This didn't work exactly right???
+        dataSource.updateStation(stations.get(index), _activity);
     }
 
     private class GetServerDataTask extends  AsyncTask<Void, Integer, Integer> {
@@ -77,38 +75,25 @@ public class tkkDataMod {
             try {
                 URL url = new URL(_activity.getString(R.string.stations_list_url));
                 URLConnection con = url.openConnection();
-                InputStream in = con.getInputStream();
-                this.body = fileReader(in);
-                String[] lines = this.body.split("~#%#~");
-                String serverListVersion = lines[0];
                 File vFile = new File(_activity.getApplicationContext().getFilesDir(),_activity.getString(R.string.server_list_version));
+                long remoteModified = con.getLastModified();
+                long localModified = vFile.lastModified();
+                update = (remoteModified > localModified);
 
-                BufferedReader reader;
                 if(!update) {
                     if (!vFile.exists()) {
                         if (vFile.createNewFile()){
-                            updateListVersion(vFile, serverListVersion);
+                            //updateListVersion(vFile, serverListVersion);
                             update = true;
-                        }
-                    } else {
-                        try {
-                            reader = new BufferedReader(new FileReader(vFile));
-                            String date;
-
-                            while ((date = reader.readLine()) != null) {
-                                if (!date.equals(serverListVersion)) {
-                                    update = true;
-                                    updateListVersion(vFile, serverListVersion);
-                                    break;
-                                }
-                            }
-                        } catch (Exception e) {
-                            Log.i("FileException", e.toString());
                         }
                     }
                 }
 
                 if(update) {
+                    Log.i("tkkDataMod", "Newer server file, downloading to local!");
+                    InputStream in = con.getInputStream();
+                    this.body = fileReader(in);
+                    String[] lines = this.body.split("~#%#~");
                     this.body = lines[1];
 
                     lines = this.body.split("~~@~~");
@@ -163,19 +148,6 @@ public class tkkDataMod {
                 total.append(line);
             }
             return total.toString();
-        }
-
-        private void updateListVersion(File vFile, String sVersion) {
-            FileOutputStream writer;
-            try {
-                writer = new FileOutputStream(vFile, false);
-                writer.write(sVersion.getBytes());
-                writer.flush();
-                writer.close();
-                update = true;
-            } catch (IOException e){
-                Log.i("FOS", "File Writing failed to update server list version");
-            }
         }
     }
 
@@ -303,6 +275,10 @@ public class tkkDataMod {
         return stations.get(idx);
     }
 
+    public ArrayList<tkkStation> getStations(){
+        return stations;
+    }
+
     //region Description:Unused methods according to AS
     public void addStationAt(int idx, tkkStation s){
         stations.set(idx, s);
@@ -327,10 +303,6 @@ public class tkkDataMod {
 
     public void destroyInstance(){
         instance = null;
-    }
-
-    public ArrayList<tkkStation> getStations(){
-        return stations;
     }
     //endregion
 }

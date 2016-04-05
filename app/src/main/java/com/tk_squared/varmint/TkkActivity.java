@@ -108,7 +108,7 @@ public class TkkActivity extends AppCompatActivity
 
         //TODO Fix interstitials
         setInterstitialAd();
-        interstitial.asyncLoadNewBanner();
+
 
         musicIntentReceiver = new MusicIntentReceiver(this);
 
@@ -116,9 +116,6 @@ public class TkkActivity extends AppCompatActivity
         setupSmaato();
         //Initialize Facebook
         setupFacebook();
-
-        //Get data model
-        tuxData = tkkDataMod.getInstance(this);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -230,10 +227,6 @@ public class TkkActivity extends AppCompatActivity
 
     @Override
     public void onResume(){
-        if (fm.findFragmentById(R.id.fragment_container) instanceof SplashFragment){
-            interstitial.asyncLoadNewBanner();
-        }
-
         IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(musicIntentReceiver, filter);
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
@@ -318,21 +311,27 @@ public class TkkActivity extends AppCompatActivity
     @Override
     public void onReadyToShow(){
         interstitial.show();
+        Log.i("Smaato Interstitial", "Ready to show it says");
     }
 
     @Override
     public void onWillShow(){
+        Log.i("Smaato Interstitial", "Will Show it says.");
         //Rejoice!
     }
 
     @Override
     public void onFailedToLoadAd(){
-        interstitial.destroy();
+        Log.i("Smaato Interstitial", "Failed to load it says");
+        //interstitial.destroy();
+        //displayListView();
     }
 
     @Override
     public void onWillClose(){
-        interstitial.destroy();
+        Log.i("Smaato Interstitial", "Will Close it says");
+        //interstitial.destroy();
+        //displayListView();
     }
 
     @Override
@@ -344,7 +343,9 @@ public class TkkActivity extends AppCompatActivity
     //Callback method for LoginFragment.Callbacks
     @Override
     public void onLoginFinish() {
+        Log.i("Smaato Interstitial", "Calling asyncLoad now...");
         displayListView();
+        interstitial.asyncLoadNewBanner();
     }
 
     //Callback method for TuxedoActivityFragment.Callbacks
@@ -357,6 +358,8 @@ public class TkkActivity extends AppCompatActivity
     @Override
     public void onDataLoaded(ArrayList<tkkStation> stations) {
         //Set data and switch to Facebook login fragment
+        //Get data model
+        tuxData = tkkDataMod.getInstance(this);
         progBar.setVisibility(View.GONE);
         if (isLoggedIn()){
             onLoginFinish();
@@ -411,12 +414,12 @@ public class TkkActivity extends AppCompatActivity
     }
 
     //TODO Fix this code
-    private void setInterstitialAd(){
-        interstitial = new Interstitial(this);
-        interstitial.setInterstitialAdListener(this);
-        interstitial.getAdSettings().setPublisherId(1100018452);
-        interstitial.getAdSettings().setAdspaceId(130097262);
-    }
+        private void setInterstitialAd(){
+            interstitial = new Interstitial(this);
+            interstitial.setInterstitialAdListener(this);
+            interstitial.getAdSettings().setPublisherId(1100018452);
+            interstitial.getAdSettings().setAdspaceId(130097262);
+        }
 
     private void setupFacebook(){
         FacebookSdk.sdkInitialize(getApplicationContext());
