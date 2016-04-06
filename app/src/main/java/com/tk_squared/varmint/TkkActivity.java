@@ -109,13 +109,15 @@ public class TkkActivity extends AppCompatActivity
         //TODO Fix interstitials
         setInterstitialAd();
 
-
+        //Set up the headphone jack listener
         musicIntentReceiver = new MusicIntentReceiver(this);
-
         //Set up ad support
         setupSmaato();
         //Initialize Facebook
         setupFacebook();
+
+        //Get data model
+        tuxData = tkkDataMod.getInstance(this);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -295,6 +297,8 @@ public class TkkActivity extends AppCompatActivity
             Bundle args = new Bundle();
             args.putString("uri", station.getUri().toString());
             args.putString("name", station.getName());
+            //TODO ts code, remove
+                Log.i("icon index#############", "index put to args is " + station.getIndex());
             args.putInt("index", station.getIndex());
             fragment.setArguments(args);
             fm.beginTransaction().replace(R.id.fragment_container, fragment)
@@ -358,8 +362,6 @@ public class TkkActivity extends AppCompatActivity
     @Override
     public void onDataLoaded(ArrayList<tkkStation> stations) {
         //Set data and switch to Facebook login fragment
-        //Get data model
-        tuxData = tkkDataMod.getInstance(this);
         progBar.setVisibility(View.GONE);
         if (isLoggedIn()){
             onLoginFinish();
@@ -370,9 +372,9 @@ public class TkkActivity extends AppCompatActivity
 
     //callback method for TkkWebViewFragment.Callbacks
     @Override
-    public void onIconReceived(Integer index, Bitmap icon){
+    public void onIconReceived(Integer idx, Bitmap icon){
         Log.i("Icon Callback", "New icon received");
-        tuxData.saveIcon(index, icon);
+        tuxData.saveIcon(idx, icon);
     }
     //endregion
 

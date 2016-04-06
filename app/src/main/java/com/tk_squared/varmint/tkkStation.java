@@ -63,7 +63,8 @@ public class tkkStation {
 
     public void setIndex(int idx) {
         index = idx;
-        Log.i("setIndex**********", "Setting index for " + name + " to " + idx);
+        Log.i("setIndex###########", "Setting index for " + name + " to " + idx);
+        Log.i("setIndex###########", "Checking index for " + name + " is " + index);
     }
 
     public String getName(){

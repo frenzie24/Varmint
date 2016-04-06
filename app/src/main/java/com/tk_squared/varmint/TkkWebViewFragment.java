@@ -98,6 +98,8 @@ public class TkkWebViewFragment extends Fragment{
             webview.setWebChromeClient(new WebChromeClient() {
                 @Override
                 public void onReceivedIcon(WebView webView, Bitmap icon) {
+                    //TODO ts code remove this
+                        Log.i("icon index############", "onIconreceived sending index as " + currentIndex);
                     ((TkkWebViewFragment.Callbacks) getActivity()).onIconReceived(currentIndex, icon);
                 }
             });
@@ -112,6 +114,8 @@ public class TkkWebViewFragment extends Fragment{
 
             currentName = getArguments().getString("name");
             currentUrl = getArguments().getString("uri");
+            //TODO ts code remove this
+                Log.i("icon index##########", "get arguments setting currentIndex to " + getArguments().getInt("index"));
             currentIndex = getArguments().getInt("index");
 
             webview.loadUrl(currentUrl);

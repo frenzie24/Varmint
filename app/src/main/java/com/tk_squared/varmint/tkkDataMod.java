@@ -44,12 +44,12 @@ public class tkkDataMod {
     private int completes = 0;
 
     //Saves the favicon
-    public void saveIcon(int index, Bitmap icon){
-        Log.i("saveIcon: ", "Icon received for " + stations.get(index).getName());
-        Log.i("saveIcon: ", "Icon is " + icon.getWidth() + " X " + icon.getHeight());
+    public void saveIcon(int idx, Bitmap icon){
+        Log.i("saveIcon###########", "Icon received for " + stations.get(idx).getName());
+        Log.i("saveIcon###########", "Icon is " + icon.getWidth() + " X " + icon.getHeight());
         //save the icon to station at index
-        stations.get(index).setIcon(new BitmapDrawable(_activity.getResources(), icon));
-        dataSource.updateStation(stations.get(index), _activity);
+        stations.get(idx).setIcon(new BitmapDrawable(_activity.getResources(), icon));
+        dataSource.updateStation(stations.get(idx), _activity);
     }
 
     private class GetServerDataTask extends  AsyncTask<Void, Integer, Integer> {
@@ -125,7 +125,7 @@ public class tkkDataMod {
                     try {
                         name = json.getString("name");
                         url = json.getString("url");
-                        CreateStationTask worker = new CreateStationTask(name, url);
+                        CreateStationTask worker = new CreateStationTask(name, url, i);
                         worker.executeOnExecutor(THREAD_POOL_EXECUTOR);
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -156,10 +156,13 @@ public class tkkDataMod {
         private Bitmap bitmap;
         private String name;
         private Uri uri;
+        private int idx;
 
-        public CreateStationTask(String name, String uri) {
+        public CreateStationTask(String name, String uri, int idx) {
             this.name = name;
             this.uri = Uri.parse(uri);
+            this.idx = idx;
+            Log.i("icon shit###########", "Thread for " + this.name + " is index " + this.idx);
         }
 
 
@@ -181,12 +184,10 @@ public class tkkDataMod {
 
         protected void onPostExecute(Integer result){
             if(this.bitmap == null) {
-
                 Log.i(_activity.getString(R.string.app_name), "Icon is null. Using "+_activity.getString(R.string.app_name)+" icon for station: " + this.name);
                 this.bitmap = BitmapFactory.decodeResource(_activity.getApplicationContext().getResources(), R.drawable.ic_launcher);
             }
-            instance.stations.add(dataSource.createStation(this.name, this.uri, this.bitmap, _activity));
-
+            instance.stations.add(dataSource.createStation(this.name, this.uri, this.bitmap, this.idx, _activity));
             if(++completes >= tasks) {
                 Callbacks cb = (Callbacks)_activity;
                 cb.onDataLoaded(instance.stations);

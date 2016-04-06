@@ -126,10 +126,11 @@ public class tkkStationsDataSource {
         return newStation;
     }
 
-    public tkkStation createStation(String n, Uri u, Bitmap b, Activity activity) {
+    public tkkStation createStation(String n, Uri u, Bitmap b, Integer i, Activity activity) {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_URI, u.toString());
         values.put(MySQLiteHelper.COLUMN_NAME, n);
+        values.put(MySQLiteHelper.COLUMN_IDX, i);
 
         values.put(MySQLiteHelper.COLUMN_ICON, BitmapHelper.getBytes(b));
 
