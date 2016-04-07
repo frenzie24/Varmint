@@ -221,13 +221,8 @@ public class tkkDataMod {
             }
 
             instance.populateStations();
-
-            return instance;
-        }/* TIM KILL THIS ELSE STATEMENT IF IT CAUSES PROBLEMS */ else {
-            instance = null;
-            return tkkDataMod.getInstance(activity);
         }
-
+        return instance;
     }
 
 
