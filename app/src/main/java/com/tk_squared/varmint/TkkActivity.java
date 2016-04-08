@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -30,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.support.v7.widget.ShareActionProvider;
 
 //Millennial Media Ad Support
 import com.facebook.AccessToken;
@@ -81,6 +83,7 @@ public class TkkActivity extends AppCompatActivity
     }
     private Handler handler = new Handler();
     private CallbackManager callbackManager;
+    private ShareActionProvider mShareActionProvider;
     public CallbackManager getCallbackManager() {return callbackManager;}
     private MusicIntentReceiver musicIntentReceiver;
     public boolean isLoggedIn(){
@@ -153,7 +156,17 @@ public class TkkActivity extends AppCompatActivity
                     .setRearrangeEnabled(false);
         } else if (fragment instanceof TkkWebViewFragment) {
             menuInflater.inflate(R.menu.menu_webview, menu);
+            MenuItem item = menu.findItem(R.id.menu_item_share);
+
+            // Fetch and store ShareActionProvider
+            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
         }
+        // Inflate menu resource file.
+
+        // Locate MenuItem with ShareActionProvider
+
+
+
         return true;
     }
 
