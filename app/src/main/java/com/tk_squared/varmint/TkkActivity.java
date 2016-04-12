@@ -33,16 +33,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.support.v7.widget.ShareActionProvider;
 
-//Millennial Media Ad Support
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-
-
-//Facebook
-import com.facebook.FacebookSdk;
+//Smaato
 import com.smaato.soma.BannerView;
 import com.smaato.soma.interstitial.Interstitial;
 import com.smaato.soma.interstitial.InterstitialAdListener;
@@ -53,22 +44,16 @@ import com.smaato.soma.interstitial.InterstitialAdListener;
  */
 public class TkkActivity extends AppCompatActivity
         implements TkkListViewFragment.Callbacks, tkkDataMod.Callbacks,
-        LoginFragment.Callbacks, TkkWebViewFragment.Callbacks, InterstitialAdListener {
+        TkkWebViewFragment.Callbacks, InterstitialAdListener {
 
     //region Description: Variables and Accessors
     private tkkDataMod tuxData;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
     public tkkDataMod getData() {
         return tuxData;
     }
     public void setData(tkkDataMod data) {
         tuxData = data;
     }
-    //private ArrayList<tkkStation> tkkData;
     public ArrayList<tkkStation> getTkkData() {
         return tuxData.getStations();
     }
@@ -82,14 +67,8 @@ public class TkkActivity extends AppCompatActivity
         listEditEnabled = enableEdit;
     }
     private Handler handler = new Handler();
-    private CallbackManager callbackManager;
     private ShareActionProvider mShareActionProvider;
-    public CallbackManager getCallbackManager() {return callbackManager;}
     private MusicIntentReceiver musicIntentReceiver;
-    public boolean isLoggedIn(){
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        return accessToken != null;
-    }
     private Interstitial interstitial;
     //endregion
 
@@ -104,10 +83,10 @@ public class TkkActivity extends AppCompatActivity
         setContentView(R.layout.activity_tkk);
 
         //show Splashscreen and progress indicator
-        progBar = (ProgressBar) findViewById(R.id.progress_bar);
-        progBar.setVisibility(View.VISIBLE);
         fm = getFragmentManager();
         displaySplashFragment();
+        progBar = (ProgressBar) findViewById(R.id.progress_bar);
+        progBar.setVisibility(View.VISIBLE);
 
         //TODO Fix interstitials
         setInterstitialAd();
@@ -115,16 +94,10 @@ public class TkkActivity extends AppCompatActivity
         //Set up the headphone jack listener
         musicIntentReceiver = new MusicIntentReceiver(this);
         //Set up ad support
-        setupSmaato();
-        //Initialize Facebook
-        setupFacebook();
+        //setupSmaato();
 
         //Get data model
         tuxData = tkkDataMod.getInstance(this);
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
     }
 
@@ -157,11 +130,14 @@ public class TkkActivity extends AppCompatActivity
         } else if (fragment instanceof TkkWebViewFragment) {
             menuInflater.inflate(R.menu.menu_webview, menu);
             MenuItem item = menu.findItem(R.id.menu_item_share);
-
-            // Fetch and store ShareActionProvider
             mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-            Intent myShareIntent = new Intent(Intent.ACTION_SEND);
-          //  mShareActionProvider.setShareIntent(myShareIntent);
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("image/*");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(getString(R.string.app_icon_url)));
+            shareIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.app_name));
+            shareIntent.putExtra(Intent.EXTRA_TEXT, ((TkkWebViewFragment) fragment).getCurrentName());
+            shareIntent.putExtra(Intent.EXTRA_TEXT, ((TkkWebViewFragment) fragment).getCurrentUrl());
+            mShareActionProvider.setShareIntent(shareIntent);
         }
         // Inflate menu resource file.
 
@@ -170,12 +146,6 @@ public class TkkActivity extends AppCompatActivity
 
 
         return true;
-    }
-
-    private void setShareIntent(Intent shareIntent) {
-        if (mShareActionProvider != null) {
-            mShareActionProvider.setShareIntent(shareIntent);
-        }
     }
 
     @Override
@@ -201,12 +171,6 @@ public class TkkActivity extends AppCompatActivity
             case R.id.action_about:
                 displayAbout();
                 return true;
-            case R.id.action_facebook_share:
-                ((TkkWebViewFragment)fm.findFragmentById(R.id.fragment_container)).onShareStation();
-                return true;
-            case R.id.menu_item_share:
-               Log.i("Hello", "HELLO SHARE MENU LOL");
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -215,33 +179,11 @@ public class TkkActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW,
-                "@string/web_page_title",
-                Uri.parse("@string/web_page_url"),
-                Uri.parse(getString(R.string.deep_url))
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW,
-                "@string/web_page_title",
-                Uri.parse("@string/web_page_url"),
-                Uri.parse("android-app://com.tk_squared.varmint/http/www.tk-squared.com/Varmint")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
     }
 
     @Override
@@ -258,18 +200,15 @@ public class TkkActivity extends AppCompatActivity
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
         super.onResume();
     }
+
+    @Override
+    public void onDestroy(){
+        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        super.onDestroy();
+    }
     //endregion
 
     //region Description: Fragment handling
-    private void displayLoginFragment(){
-        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-        if (!(fragment instanceof LoginFragment)){
-            fragment = new LoginFragment();
-            fm.beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .commit();
-        }
-    }
 
     private void displaySplashFragment(){
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
@@ -338,7 +277,10 @@ public class TkkActivity extends AppCompatActivity
     //TODO Check this code
     @Override
     public void onReadyToShow(){
-        interstitial.show();
+        if(interstitial.isInterstitialReady()){
+            Log.i("SMAATO_RES", "Ad available");
+            interstitial.show();
+        }
         Log.i("Smaato Interstitial", "Ready to show it says");
     }
 
@@ -368,14 +310,6 @@ public class TkkActivity extends AppCompatActivity
     }
     //endregion
 
-    //Callback method for LoginFragment.Callbacks
-    @Override
-    public void onLoginFinish() {
-        Log.i("Smaato Interstitial", "Calling asyncLoad now...");
-        displayListView();
-        interstitial.asyncLoadNewBanner();
-    }
-
     //Callback method for TuxedoActivityFragment.Callbacks
     @Override
     public void onStationSelected(tkkStation station) {
@@ -385,13 +319,10 @@ public class TkkActivity extends AppCompatActivity
     //Callback method for tkkDataMod.Callbacks
     @Override
     public void onDataLoaded(ArrayList<tkkStation> stations) {
-        //Set data and switch to Facebook login fragment
         progBar.setVisibility(View.GONE);
-        if (isLoggedIn()){
-            onLoginFinish();
-        } else {
-            displayLoginFragment();
-        }
+        Log.i("Smaato Interstitial", "Calling asyncLoad now...");
+        displayListView();
+        interstitial.asyncLoadNewBanner();
     }
 
     //callback method for TkkWebViewFragment.Callbacks
@@ -443,41 +374,10 @@ public class TkkActivity extends AppCompatActivity
         private void setInterstitialAd(){
             interstitial = new Interstitial(this);
             interstitial.setInterstitialAdListener(this);
-            interstitial.getAdSettings().setPublisherId(1100018452);
-            interstitial.getAdSettings().setAdspaceId(130097262);
+            interstitial.getAdSettings().setPublisherId(0); // TODO replace with getResources().getInteger(R.integer.smaato_pub_id)
+            interstitial.getAdSettings().setAdspaceId(0);  //TODO replace with getResources().getInteger(R.integer.smaato_ad_id)
         }
 
-    private void setupFacebook(){
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        callbackManager = CallbackManager.Factory.create();
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo(
-                    "com.tk_squared.popcorn",
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                String something = new String(Base64.encode(md.digest(), 0));
-                Log.i("KeyHash:", something);
-                Log.i("KeyHash:", something);
-                Log.i("KeyHash:", something);
-                Log.i("KeyHash:", something);
-                Log.i("KeyHash:", something);
-                Log.i("KeyHash:", something);
-                Log.i("KeyHash:", something);
-                Log.i("KeyHash:", something);
-                Log.i("KeyHash:", something);
-
-            }
-        } catch (PackageManager.NameNotFoundException e1) {
-            Log.e("name not found", e1.toString());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e("no such an algorithm", e.toString());
-        } catch (Exception e) {
-            Log.e("exception", e.toString());
-        }
-    }
-    //endregion
 
     private void setupSmaato(){
         BannerView bv = new BannerView(this);
@@ -487,8 +387,8 @@ public class TkkActivity extends AppCompatActivity
         RelativeLayout mll = (RelativeLayout)findViewById(R.id.ad_container);
         mll.addView(bv, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        bv.getAdSettings().setPublisherId(1100018452);
-        bv.getAdSettings().setAdspaceId(130087931);
+        bv.getAdSettings().setPublisherId(getResources().getInteger(R.integer.smaato_pub_id));
+        bv.getAdSettings().setAdspaceId(getResources().getInteger(R.integer.smaato_ad_id));
         bv.asyncLoadNewBanner();
     }
 }

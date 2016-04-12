@@ -24,6 +24,7 @@
     <string name="json_line_delimiter">~#%#~</string>
     <integer name="smaato_pub_id">1100018452</integer>
     <integer name="smaato_ad_id">130087931</integer>
+    <integer name="smaato_inter_id">130097262</integer>
     <integer name="smaato_reload_delay">15</integer>
     <integer name="about_screen_delay">8000</integer>
 </resources>

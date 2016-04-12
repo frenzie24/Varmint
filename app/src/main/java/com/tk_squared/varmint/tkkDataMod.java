@@ -187,7 +187,11 @@ public class tkkDataMod {
                 Log.i(_activity.getString(R.string.app_name), "Icon is null. Using "+_activity.getString(R.string.app_name)+" icon for station: " + this.name);
                 this.bitmap = BitmapFactory.decodeResource(_activity.getApplicationContext().getResources(), R.drawable.ic_launcher);
             }
-            instance.stations.add(dataSource.createStation(this.name, this.uri, this.bitmap, this.idx, _activity));
+            tkkStation newStation = dataSource.createStation(this.name, this.uri, this.bitmap, this.idx, _activity);
+            Log.i("NewS#####", "idx= " + this.idx);
+            Log.i("NewS#####", newStation.getName());
+            Log.i("NewS#####", String.valueOf(newStation.getIndex()));
+            instance.stations.add(newStation);
             if(++completes >= tasks) {
                 Callbacks cb = (Callbacks)_activity;
                 cb.onDataLoaded(instance.stations);

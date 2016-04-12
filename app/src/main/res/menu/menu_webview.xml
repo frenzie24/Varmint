@@ -3,16 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.tk_squared.varmint.BangerActivity">
-
-    <item
-        android:id="@+id/action_facebook_share"
-        android:icon="@drawable/ic_action_share_white"
-        app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/menu_item_share"
-        app:showAsAction="ifRoom"
+    <item android:id="@+id/menu_item_share"
         android:title="Share"
-        android:actionProviderClass=
-            "android.widget.ShareActionProvider" />
+        app:showAsAction="ifRoom"
+        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"/>
 
 </menu>
