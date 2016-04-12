@@ -127,6 +127,7 @@ public class TkkWebViewFragment extends Fragment{
 
     public void onShareStation(){
         shareDialog.show(linkContent);
+
     }
 
     public void prepShareDialog(){

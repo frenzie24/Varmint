@@ -160,6 +160,8 @@ public class TkkActivity extends AppCompatActivity
 
             // Fetch and store ShareActionProvider
             mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+            Intent myShareIntent = new Intent(Intent.ACTION_SEND);
+          //  mShareActionProvider.setShareIntent(myShareIntent);
         }
         // Inflate menu resource file.
 
@@ -168,6 +170,12 @@ public class TkkActivity extends AppCompatActivity
 
 
         return true;
+    }
+
+    private void setShareIntent(Intent shareIntent) {
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(shareIntent);
+        }
     }
 
     @Override
@@ -195,6 +203,9 @@ public class TkkActivity extends AppCompatActivity
                 return true;
             case R.id.action_facebook_share:
                 ((TkkWebViewFragment)fm.findFragmentById(R.id.fragment_container)).onShareStation();
+                return true;
+            case R.id.menu_item_share:
+               Log.i("Hello", "HELLO SHARE MENU LOL");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
