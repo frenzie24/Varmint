@@ -2,7 +2,7 @@ package com.tk_squared.varmint;
 
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.util.Log;
+
 
 /**
  * Created by Kevin for tk^2 on 12/29/2015.
@@ -57,14 +57,11 @@ public class tkkStation {
     public void setId(long _id) { id = _id; }
 
     public int getIndex(){
-        Log.i("getIndex##########", "Sending index for " + name + " as " + index);
         return index;
     }
 
     public void setIndex(int idx) {
         index = idx;
-        Log.i("setIndex###########", "Setting index for " + name + " to " + idx);
-        Log.i("setIndex###########", "Checking index for " + name + " is " + index);
     }
 
     public String getName(){

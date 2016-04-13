@@ -6,9 +6,6 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,13 +14,10 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import android.util.Log;
 import android.view.View;
@@ -63,11 +57,7 @@ public class TkkActivity extends AppCompatActivity
     public boolean getListEditEnabled() {
         return listEditEnabled;
     }
-    public void setEditEnabled(boolean enableEdit) {
-        listEditEnabled = enableEdit;
-    }
     private Handler handler = new Handler();
-    private ShareActionProvider mShareActionProvider;
     private MusicIntentReceiver musicIntentReceiver;
     private Interstitial interstitial;
     //endregion
@@ -86,15 +76,17 @@ public class TkkActivity extends AppCompatActivity
         fm = getFragmentManager();
         displaySplashFragment();
         progBar = (ProgressBar) findViewById(R.id.progress_bar);
-        progBar.setVisibility(View.VISIBLE);
+        if (progBar != null){
+            progBar.setVisibility(View.VISIBLE);
+        }
 
         //TODO Fix interstitials
         setInterstitialAd();
+        //Set up ad support
+        //setupSmaato();
 
         //Set up the headphone jack listener
         musicIntentReceiver = new MusicIntentReceiver(this);
-        //Set up ad support
-        //setupSmaato();
 
         //Get data model
         tuxData = tkkDataMod.getInstance(this);
@@ -121,6 +113,7 @@ public class TkkActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
         MenuInflater menuInflater = getMenuInflater();
+        //ListView Menu - edit list, get new list, about
         if (fragment instanceof TkkListViewFragment) {
             menuInflater.inflate(R.menu.menu_tkk, menu);
             listEditEnabled = false;
@@ -128,9 +121,10 @@ public class TkkActivity extends AppCompatActivity
                     .getListView()
                     .setRearrangeEnabled(false);
         } else if (fragment instanceof TkkWebViewFragment) {
+            //WebView Menu - share button
             menuInflater.inflate(R.menu.menu_webview, menu);
             MenuItem item = menu.findItem(R.id.menu_item_share);
-            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+            ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("image/*");
             shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(getString(R.string.app_icon_url)));
@@ -139,22 +133,18 @@ public class TkkActivity extends AppCompatActivity
             shareIntent.putExtra(Intent.EXTRA_TEXT, ((TkkWebViewFragment) fragment).getCurrentUrl());
             mShareActionProvider.setShareIntent(shareIntent);
         }
-        // Inflate menu resource file.
-
-        // Locate MenuItem with ShareActionProvider
-
-
-
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            //Get new list
             case R.id.action_fetch:
                 progBar.setVisibility(View.VISIBLE);
                 tuxData.repopulateStations();
                 return true;
+            //Edit list mode
             case R.id.action_edit:
                 listEditEnabled = !listEditEnabled;
                 if (listEditEnabled) {
@@ -168,22 +158,14 @@ public class TkkActivity extends AppCompatActivity
                         .setRearrangeEnabled(listEditEnabled);
                 setDeleteButtons(fragment);
                 return true;
+            //About screen
             case R.id.action_about:
                 displayAbout();
                 return true;
+            //The fuck that happen?
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
     }
 
     @Override
@@ -203,6 +185,7 @@ public class TkkActivity extends AppCompatActivity
 
     @Override
     public void onDestroy(){
+        //This doesn't really work
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
         super.onDestroy();
     }
@@ -260,8 +243,6 @@ public class TkkActivity extends AppCompatActivity
             Bundle args = new Bundle();
             args.putString("uri", station.getUri().toString());
             args.putString("name", station.getName());
-            //TODO ts code, remove
-                Log.i("icon index#############", "index put to args is " + station.getIndex());
             args.putInt("index", station.getIndex());
             fragment.setArguments(args);
             fm.beginTransaction().replace(R.id.fragment_container, fragment)
@@ -385,7 +366,9 @@ public class TkkActivity extends AppCompatActivity
         bv.setAutoReloadFrequency(15);
 
         RelativeLayout mll = (RelativeLayout)findViewById(R.id.ad_container);
-        mll.addView(bv, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        if (mll != null){
+            mll.addView(bv, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
 
         bv.getAdSettings().setPublisherId(getResources().getInteger(R.integer.smaato_pub_id));
         bv.getAdSettings().setAdspaceId(getResources().getInteger(R.integer.smaato_ad_id));

@@ -14,6 +14,7 @@ import android.content.Intent;
 public class MusicIntentReceiver extends BroadcastReceiver {
     private Activity activity;
 
+    //Some idiot file insisted on this. The manifest I think.
     public MusicIntentReceiver(){}
 
     public MusicIntentReceiver(Activity activity){

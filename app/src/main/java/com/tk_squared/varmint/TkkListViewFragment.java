@@ -103,7 +103,9 @@ public class TkkListViewFragment extends Fragment implements RearrangeableListVi
             }
         });
         Toolbar toolbar = (Toolbar) tkkActivity.findViewById(R.id.toolbar);
-        toolbar.setSubtitle(R.string.subtitle);
+        if (toolbar != null){
+            toolbar.setSubtitle(R.string.subtitle);
+        }
         tkkActivity.setSupportActionBar(toolbar);
     }
     //endregion

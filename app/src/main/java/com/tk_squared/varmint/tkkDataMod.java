@@ -45,8 +45,6 @@ public class tkkDataMod {
 
     //Saves the favicon
     public void saveIcon(int idx, Bitmap icon){
-        Log.i("saveIcon###########", "Icon received for " + stations.get(idx).getName());
-        Log.i("saveIcon###########", "Icon is " + icon.getWidth() + " X " + icon.getHeight());
         //save the icon to station at index
         stations.get(idx).setIcon(new BitmapDrawable(_activity.getResources(), icon));
         dataSource.updateStation(stations.get(idx), _activity);
@@ -162,7 +160,6 @@ public class tkkDataMod {
             this.name = name;
             this.uri = Uri.parse(uri);
             this.idx = idx;
-            Log.i("icon shit###########", "Thread for " + this.name + " is index " + this.idx);
         }
 
 
@@ -184,13 +181,9 @@ public class tkkDataMod {
 
         protected void onPostExecute(Integer result){
             if(this.bitmap == null) {
-                Log.i(_activity.getString(R.string.app_name), "Icon is null. Using "+_activity.getString(R.string.app_name)+" icon for station: " + this.name);
                 this.bitmap = BitmapFactory.decodeResource(_activity.getApplicationContext().getResources(), R.drawable.ic_launcher);
             }
             tkkStation newStation = dataSource.createStation(this.name, this.uri, this.bitmap, this.idx, _activity);
-            Log.i("NewS#####", "idx= " + this.idx);
-            Log.i("NewS#####", newStation.getName());
-            Log.i("NewS#####", String.valueOf(newStation.getIndex()));
             instance.stations.add(newStation);
             if(++completes >= tasks) {
                 Callbacks cb = (Callbacks)_activity;

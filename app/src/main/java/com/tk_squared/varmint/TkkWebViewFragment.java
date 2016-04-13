@@ -2,9 +2,7 @@ package com.tk_squared.varmint;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,7 +12,6 @@ import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.util.Log;
 
 /**
  * Created by Tim on 1/4/2016.
@@ -80,8 +77,6 @@ public class TkkWebViewFragment extends Fragment{
             webview.setWebChromeClient(new WebChromeClient() {
                 @Override
                 public void onReceivedIcon(WebView webView, Bitmap icon) {
-                    //TODO ts code remove this
-                        Log.i("icon index############", "onIconreceived sending index as " + currentIndex);
                     ((TkkWebViewFragment.Callbacks) getActivity()).onIconReceived(currentIndex, icon);
                 }
             });
@@ -96,14 +91,9 @@ public class TkkWebViewFragment extends Fragment{
 
             currentName = getArguments().getString("name");
             currentUrl = getArguments().getString("uri");
-            //TODO ts code remove this
-                Log.i("icon index##########", "get arguments setting currentIndex to " + getArguments().getInt("index"));
             currentIndex = getArguments().getInt("index");
 
             webview.loadUrl(currentUrl);
-            Log.i("URL", currentUrl);
-        } else {
-            Log.i("WebView: ", "webview isn't null, bro");
         }
     }
     //endregion
