@@ -19,7 +19,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -83,7 +82,7 @@ public class TkkActivity extends AppCompatActivity
 
         //Set up interstitial ads
         setInterstitialAd();
-        //Set up ad support
+        //Set up banner ads
         setupSmaato();
 
         //Set up the headphone jack listener
@@ -102,6 +101,7 @@ public class TkkActivity extends AppCompatActivity
             ((TkkWebViewFragment) fragment).getWebview().goBack();
         } else if (fm.getBackStackEntryCount() > 1) {
             if (fragment instanceof TkkWebViewFragment){
+                ((TkkWebViewFragment) fragment).getWebview().clearCache(true);
                 ((TkkWebViewFragment) fragment).getWebview().destroy();
             }
             fm.popBackStack();
@@ -150,11 +150,7 @@ public class TkkActivity extends AppCompatActivity
             //Edit list mode
             case R.id.action_edit:
                 listEditEnabled = !listEditEnabled;
-                if (listEditEnabled) {
-                    item.setChecked(true);
-                } else {
-                    item.setChecked(false);
-                }
+                item.setChecked(listEditEnabled);
                 TkkListViewFragment fragment =
                         ((TkkListViewFragment) fm.findFragmentById(R.id.fragment_container));
                 fragment.getListView()
@@ -190,12 +186,12 @@ public class TkkActivity extends AppCompatActivity
     public void onDestroy(){
         //This doesn't really work
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+        interstitial.destroy();
         super.onDestroy();
     }
     //endregion
 
     //region Description: Fragment handling
-
     private void displaySplashFragment(){
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
         if (fragment == null) {
@@ -210,13 +206,13 @@ public class TkkActivity extends AppCompatActivity
     //Displays the About screen
     private void displayAbout() {
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-        if (!(fragment instanceof SplashFragment)) {
-            fragment = new SplashFragment();
+        if (!(fragment instanceof AboutFragment)) {
+            fragment = new AboutFragment();
             fm.beginTransaction().replace(R.id.fragment_container, fragment)
                     .addToBackStack("About")
                     .commit();
         }
-
+        //Auto-return from about screen.
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -225,7 +221,7 @@ public class TkkActivity extends AppCompatActivity
                 }
             }
         };
-        handler.postDelayed(r, 8000);
+        handler.postDelayed(r, getResources().getInteger(R.integer.about_screen_delay));
     }
 
     private void displayListView(){
@@ -252,45 +248,36 @@ public class TkkActivity extends AppCompatActivity
                     .addToBackStack("webView")
                     .commit();
         }
-        if(interstitial.isInterstitialReady()){
-            Log.i("SMAATO_RES", "Ad available");
-            interstitial.show();
-        }
     }
     //endregion
 
     //region Description: Interface methods
 
-    //region Description:Callback methods for InterstitualListener
+    //region Description:Callback methods for InterstitialListener
     @Override
     public void onReadyToShow(){
-
-        Log.i("Smaato Interstitial", "Ready to show it says");
+        //We'll let ya know
     }
 
     @Override
     public void onWillShow(){
-        Log.i("Smaato Interstitial", "Will Show it says.");
         //Rejoice!
     }
 
     @Override
     public void onFailedToLoadAd(){
-        Log.i("Smaato Interstitial", "Failed to load it says");
+        //sh*t happens
         interBannerLoad();
-        //displayListView();
     }
 
     @Override
     public void onWillClose(){
         interBannerLoad();
-        Log.i("Smaato Interstitial", "Will Close it says");
-
     }
 
     @Override
     public void onWillOpenLandingPage(){
-        interstitial.destroy();
+        //$$!
     }
     //endregion
 
@@ -298,6 +285,9 @@ public class TkkActivity extends AppCompatActivity
     //Callback method for TuxedoActivityFragment.Callbacks
     @Override
     public void onStationSelected(tkkStation station) {
+        if(interstitial.isInterstitialReady()){
+            interstitial.show();
+        }
         displayWebView(station);
     }
 
@@ -305,7 +295,6 @@ public class TkkActivity extends AppCompatActivity
     @Override
     public void onDataLoaded(ArrayList<tkkStation> stations) {
         progBar.setVisibility(View.GONE);
-        Log.i("Smaato Interstitial", "Calling asyncLoad now...");
         displayListView();
         interstitial.asyncLoadNewBanner();
     }
@@ -313,7 +302,6 @@ public class TkkActivity extends AppCompatActivity
     //callback method for TkkWebViewFragment.Callbacks
     @Override
     public void onIconReceived(Integer idx, Bitmap icon){
-        Log.i("Icon Callback", "New icon received");
         tuxData.saveIcon(idx, icon);
     }
     //endregion
@@ -350,7 +338,8 @@ public class TkkActivity extends AppCompatActivity
                     .addParentStack(TkkActivity.class)
                     .addNextIntent(intent);
             PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentIntent(pendingIntent);NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            builder.setContentIntent(pendingIntent);NotificationManager nm =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             nm.notify(1, builder.build());
         }
     }
@@ -369,21 +358,23 @@ public class TkkActivity extends AppCompatActivity
                 interstitial.asyncLoadNewBanner();
             }
         };
-        handler.postDelayed(r,60000);
+        handler.postDelayed(r,getResources().getInteger(R.integer.smaato_interstitial_reload_delay));
     }
 
     private void setupSmaato(){
         BannerView bv = new BannerView(this);
         bv.setAutoReloadEnabled(true);
-        bv.setAutoReloadFrequency(15);
+        bv.setAutoReloadFrequency(getResources().getInteger(R.integer.smaato_reload_delay));
 
-        RelativeLayout mll = (RelativeLayout)findViewById(R.id.ad_container);
-        if (mll != null){
-            mll.addView(bv, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        RelativeLayout relativeLayout = (RelativeLayout)findViewById(R.id.ad_container);
+        if (relativeLayout != null){
+            relativeLayout.addView(bv, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
         }
 
         bv.getAdSettings().setPublisherId(getResources().getInteger(R.integer.smaato_pub_id));
         bv.getAdSettings().setAdspaceId(getResources().getInteger(R.integer.smaato_ad_id));
         bv.asyncLoadNewBanner();
     }
+    //endregion
 }
