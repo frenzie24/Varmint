@@ -3,7 +3,9 @@ package com.tk_squared.varmint;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -151,11 +153,32 @@ public class TkkListViewFragment extends Fragment implements RearrangeableListVi
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ((TkkActivity) getActivity()).getData().removeStationAt(position);
-                    notifyDataSetChanged();
+                    confirmDialog(position);
                 }
             });
             return view;
+        }
+
+        private void confirmDialog(final Integer position){
+            AlertDialog.Builder cDialog = new AlertDialog.Builder((getContext()));
+            cDialog
+                    .setMessage("delete " +
+                            ((TkkActivity) getActivity())
+                                    .getData().getStationAt(position).getName() + "?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int id){
+                            ((TkkActivity) getActivity()).getData().removeStationAt(position);
+                            notifyDataSetChanged();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int id){
+                            //foregetaboutit
+                        }
+                    })
+                    .show();
         }
     }
 }
