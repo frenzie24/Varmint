@@ -1,5 +1,18 @@
 package com.tk_squared.varmint;
 
+/**************************************************************
+ * *********       Ad Support Section        ******** *******
+ */
+//Smaato
+import com.smaato.soma.BannerView;
+import com.smaato.soma.interstitial.Interstitial;
+import com.smaato.soma.interstitial.InterstitialAdListener;
+/*************************************************************
+ *    *********     **********             ******    ********
+ */
+
+
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -27,10 +40,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.support.v7.widget.ShareActionProvider;
 
-//Smaato
-import com.smaato.soma.BannerView;
-import com.smaato.soma.interstitial.Interstitial;
-import com.smaato.soma.interstitial.InterstitialAdListener;
 
 /**
  * Created by zengo on 1/30/2016.
@@ -59,7 +68,8 @@ public class TkkActivity extends AppCompatActivity
     }
     private Handler handler = new Handler();
     private MusicIntentReceiver musicIntentReceiver;
-    private Interstitial interstitial;
+    private boolean interstitialShowing = false;
+
     //endregion
 
     public TkkActivity() {
@@ -80,10 +90,7 @@ public class TkkActivity extends AppCompatActivity
             progBar.setVisibility(View.VISIBLE);
         }
 
-        //Set up interstitial ads
-        setInterstitialAd();
-        //Set up banner ads
-        setupSmaato();
+        setupAdSupport();
 
         //Set up the headphone jack listener
         musicIntentReceiver = new MusicIntentReceiver(this);
@@ -186,7 +193,7 @@ public class TkkActivity extends AppCompatActivity
     public void onDestroy(){
         //This doesn't really work
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
-        interstitial.destroy();
+        adCleanup();
         super.onDestroy();
     }
     //endregion
@@ -253,41 +260,12 @@ public class TkkActivity extends AppCompatActivity
 
     //region Description: Interface methods
 
-    //region Description:Callback methods for InterstitialListener
-    @Override
-    public void onReadyToShow(){
-        //We'll let ya know
-    }
-
-    @Override
-    public void onWillShow(){
-        //Rejoice!
-    }
-
-    @Override
-    public void onFailedToLoadAd(){
-        //sh*t happens
-        interBannerLoad();
-    }
-
-    @Override
-    public void onWillClose(){
-        interBannerLoad();
-    }
-
-    @Override
-    public void onWillOpenLandingPage(){
-        //$$!
-    }
-    //endregion
 
 
     //Callback method for TuxedoActivityFragment.Callbacks
     @Override
     public void onStationSelected(tkkStation station) {
-        if(interstitial.isInterstitialReady()){
-            interstitial.show();
-        }
+        showInterstitial();
         displayWebView(station);
     }
 
@@ -344,6 +322,30 @@ public class TkkActivity extends AppCompatActivity
         }
     }
 
+
+    /***************************************************
+     * ******     Ad Support Section      *****  ******
+     */
+    private Interstitial interstitial;
+
+    /***************************************************
+     *            ****************         ***** ******
+     */
+
+    private void showInterstitial(){
+        if(interstitial.isInterstitialReady()){
+            interstitial.show();
+        }
+    }
+
+
+    private void setupAdSupport(){
+        //Set up interstitial ads
+        setInterstitialAd();
+        //Set up banner ads
+        setupSmaato();
+    }
+
     private void setInterstitialAd(){
         interstitial = new Interstitial(this);
         interstitial.setInterstitialAdListener(this);
@@ -361,6 +363,35 @@ public class TkkActivity extends AppCompatActivity
         handler.postDelayed(r,getResources().getInteger(R.integer.smaato_interstitial_reload_delay));
     }
 
+    //region Description:Callback methods for InterstitialListener
+    @Override
+    public void onReadyToShow(){
+        //We'll let ya know
+    }
+
+    @Override
+    public void onWillShow(){
+        //Rejoice!
+    }
+
+    @Override
+    public void onFailedToLoadAd(){
+        //sh*t happens
+        interBannerLoad();
+    }
+
+    @Override
+    public void onWillClose(){
+        interBannerLoad();
+    }
+
+    @Override
+    public void onWillOpenLandingPage(){
+        //$$!
+    }
+    //endregion
+
+
     private void setupSmaato(){
         BannerView bv = new BannerView(this);
         bv.setAutoReloadEnabled(true);
@@ -375,6 +406,10 @@ public class TkkActivity extends AppCompatActivity
         bv.getAdSettings().setPublisherId(getResources().getInteger(R.integer.smaato_pub_id));
         bv.getAdSettings().setAdspaceId(getResources().getInteger(R.integer.smaato_ad_id));
         bv.asyncLoadNewBanner();
+    }
+
+    private void adCleanup(){
+        interstitial.destroy();
     }
     //endregion
 }
