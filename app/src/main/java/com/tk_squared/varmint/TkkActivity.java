@@ -81,10 +81,10 @@ public class TkkActivity extends AppCompatActivity
             progBar.setVisibility(View.VISIBLE);
         }
 
-        //TODO Fix interstitials
+        //Set up interstitial ads
         setInterstitialAd();
         //Set up ad support
-        //setupSmaato();
+        setupSmaato();
 
         //Set up the headphone jack listener
         musicIntentReceiver = new MusicIntentReceiver(this);
@@ -252,19 +252,19 @@ public class TkkActivity extends AppCompatActivity
                     .addToBackStack("webView")
                     .commit();
         }
+        if(interstitial.isInterstitialReady()){
+            Log.i("SMAATO_RES", "Ad available");
+            interstitial.show();
+        }
     }
     //endregion
 
     //region Description: Interface methods
 
     //region Description:Callback methods for InterstitualListener
-    //TODO Check this code
     @Override
     public void onReadyToShow(){
-        if(interstitial.isInterstitialReady()){
-            Log.i("SMAATO_RES", "Ad available");
-            interstitial.show();
-        }
+
         Log.i("Smaato Interstitial", "Ready to show it says");
     }
 
@@ -277,15 +277,15 @@ public class TkkActivity extends AppCompatActivity
     @Override
     public void onFailedToLoadAd(){
         Log.i("Smaato Interstitial", "Failed to load it says");
-        //interstitial.destroy();
+        interBannerLoad();
         //displayListView();
     }
 
     @Override
     public void onWillClose(){
+        interBannerLoad();
         Log.i("Smaato Interstitial", "Will Close it says");
-        //interstitial.destroy();
-        //displayListView();
+
     }
 
     @Override
@@ -293,6 +293,7 @@ public class TkkActivity extends AppCompatActivity
         interstitial.destroy();
     }
     //endregion
+
 
     //Callback method for TuxedoActivityFragment.Callbacks
     @Override
@@ -354,14 +355,22 @@ public class TkkActivity extends AppCompatActivity
         }
     }
 
-    //TODO Fix this code
-        private void setInterstitialAd(){
-            interstitial = new Interstitial(this);
-            interstitial.setInterstitialAdListener(this);
-            interstitial.getAdSettings().setPublisherId(0); // TODO replace with getResources().getInteger(R.integer.smaato_pub_id)
-            interstitial.getAdSettings().setAdspaceId(0);  //TODO replace with getResources().getInteger(R.integer.smaato_ad_id)
-        }
+    private void setInterstitialAd(){
+        interstitial = new Interstitial(this);
+        interstitial.setInterstitialAdListener(this);
+        interstitial.getAdSettings().setPublisherId(getResources().getInteger(R.integer.smaato_pub_id));
+        interstitial.getAdSettings().setAdspaceId(getResources().getInteger(R.integer.smaato_ad_id));
+    }
 
+    private void interBannerLoad(){
+        Runnable r = new Runnable(){
+            @Override
+            public void run(){
+                interstitial.asyncLoadNewBanner();
+            }
+        };
+        handler.postDelayed(r,60000);
+    }
 
     private void setupSmaato(){
         BannerView bv = new BannerView(this);
