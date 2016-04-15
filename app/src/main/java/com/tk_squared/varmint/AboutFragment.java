@@ -12,7 +12,7 @@ import android.view.ViewGroup;
  */
 public class AboutFragment extends Fragment{
     public AboutFragment(){}
-
+    //random change
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
