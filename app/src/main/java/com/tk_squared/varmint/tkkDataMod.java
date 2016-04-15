@@ -78,11 +78,11 @@ public class tkkDataMod {
             System.out.println(stations.size());
 
             try {
-               // URL url = new URL(_activity.getString(R.string.stations_list_url));
-                defaultIcon=BitmapFactory.decodeResource(_activity.getApplicationContext()
+                // URL url = new URL(_activity.getString(R.string.stations_list_url));
+                defaultIcon = BitmapFactory.decodeResource(_activity.getApplicationContext()
                         .getResources(), R.drawable.ic_launcher);
                 File vFile = new File(_activity.getApplicationContext().getFilesDir(), "stations.json");
-                if(!update) {
+                if (!update) {
                     URL url = new URL("http://tk-squared.com/Varmint/stations_.json");
                     URLConnection con = url.openConnection();
 
@@ -114,9 +114,27 @@ public class tkkDataMod {
                     this.ja = jsonFileReader(vFile);
 
                 }
+                if (update) {
+                    instance.deleteAllStations();
+                    try {
+                        for (int i = 0; i < this.ja.length(); ++i) {
+                            JSONObject json = this.ja.getJSONObject(i);
+                            String name;
+                            String url;
+
+                            name = json.getString("name");
+                            url = json.getString("url");
+                            instance.stations.add(dataSource.createStation(name, Uri.parse(url), defaultIcon, i, _activity));
 
 
-            } catch (MalformedURLException e) {
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+            }catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 Log.i("IOException", "ITS AN IOEXCEPTION!!");
@@ -129,33 +147,9 @@ public class tkkDataMod {
         }
 
         protected void onPostExecute(Integer result) {
-            if(update){
-                instance.deleteAllStations();
-                try {
-                    for(int i = 0; i < this.ja.length(); ++i) {
-                        JSONObject json = this.ja.getJSONObject(i);
-                        String name;
-                        String url;
-
-                        name = json.getString("name");
-                        url = json.getString("url");
-                        instance.stations.add(dataSource.createStation(name, Uri.parse(url), defaultIcon, i, _activity));
-                        if(++completes >= tasks) {
-                            Callbacks cb = (Callbacks)_activity;
-                            completes = 0;
-                            cb.onDataLoaded(instance.stations);
-                        }
-                      //  worker.executeOnExecutor(THREAD_POOL_EXECUTOR);
-
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-                Callbacks cb = (Callbacks)_activity;
-                cb.onDataLoaded(instance.stations);
-            }
+            Callbacks cb = (Callbacks)_activity;
+            completes = 0;
+            cb.onDataLoaded(instance.stations);
 
         }
 
@@ -201,7 +195,7 @@ public class tkkDataMod {
             return temp;
         }
     }
-
+/*
     private class CreateStationTask extends AsyncTask<Void, Integer, Integer>{
 
         private Bitmap bitmap;
@@ -245,7 +239,7 @@ public class tkkDataMod {
             }
         }
     }
-
+*/
     private tkkDataMod(){
     }
 
