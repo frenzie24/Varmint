@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -143,6 +144,8 @@ public class TkkActivity extends AppCompatActivity
             case R.id.action_fetch:
                 progBar.setVisibility(View.VISIBLE);
                 tuxData.repopulateStations();
+                ((ArrayAdapter)((TkkListViewFragment)fm.findFragmentById(R.id.fragment_container))
+                        .getListView().getAdapter()).notifyDataSetChanged();
                 return true;
             //Edit list mode
             case R.id.action_edit:
