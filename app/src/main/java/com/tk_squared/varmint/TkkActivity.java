@@ -106,7 +106,7 @@ public class TkkActivity extends AppCompatActivity
         if (fragment instanceof TkkWebViewFragment &&
                 ((TkkWebViewFragment) fragment).getWebview().canGoBack()) {
             ((TkkWebViewFragment) fragment).getWebview().goBack();
-        } else if (fm.getBackStackEntryCount() > 1) {
+        } else if (fm.getBackStackEntryCount() > 2) {
             if (fragment instanceof TkkWebViewFragment){
                 ((TkkWebViewFragment) fragment).getWebview().clearCache(true);
                 ((TkkWebViewFragment) fragment).getWebview().destroy();
@@ -149,6 +149,7 @@ public class TkkActivity extends AppCompatActivity
         switch (item.getItemId()) {
             //Get new list
             case R.id.action_fetch:
+                displaySplashFragment();
                 progBar.setVisibility(View.VISIBLE);
                 tuxData.repopulateStations();
                 ((ArrayAdapter)((TkkListViewFragment)fm.findFragmentById(R.id.fragment_container))
@@ -201,7 +202,7 @@ public class TkkActivity extends AppCompatActivity
     //region Description: Fragment handling
     private void displaySplashFragment(){
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-        if (fragment == null) {
+        if (!(fragment instanceof SplashFragment)) {
             fragment = new SplashFragment();
             fm.beginTransaction()
                     .add(R.id.fragment_container, fragment)
