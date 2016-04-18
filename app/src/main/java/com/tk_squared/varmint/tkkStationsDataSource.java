@@ -98,7 +98,7 @@ public class tkkStationsDataSource {
     public void close() {
         dbHelper.close();
     }
-
+/*
     public void addStation(tkkStation s) {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_URI, s.getUri().toString());
@@ -108,7 +108,8 @@ public class tkkStationsDataSource {
         long insertId = database.insert(MySQLiteHelper.TABLE_STATIONS, null, values);
         s.setIndex(((int) insertId));
     }
-
+    */
+/*
     public tkkStation createStation(String n, Uri u, Activity activity) {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_URI, u.toString());
@@ -125,6 +126,7 @@ public class tkkStationsDataSource {
         cursor.close();
         return newStation;
     }
+    */
 
     public tkkStation createStation(String n, Uri u, Bitmap b, Integer i, Activity activity) {
         ContentValues values = new ContentValues();

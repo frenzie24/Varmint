@@ -15,7 +15,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -44,8 +43,6 @@ public class tkkDataMod {
     private ArrayList<tkkStation> stations;
     private tkkStationsDataSource dataSource;
     private Activity _activity;
-    private int tasks = 0;
-    private int completes = 0;
 
     //Saves the favicon
     public void saveIcon(int idx, Bitmap icon){
@@ -58,17 +55,14 @@ public class tkkDataMod {
 
         String body;
         Boolean update = false;
-        ArrayList<JSONObject> jsons;
 
         Bitmap defaultIcon;
-        JSONArray ja;
+        JSONArray jsons;
 
         public GetServerDataTask(){
-            this.jsons = new ArrayList<>();
         }
 
         public GetServerDataTask(Boolean u) {
-            this.jsons = new ArrayList<>();
             this.update = u;
         }
 
@@ -90,10 +84,8 @@ public class tkkDataMod {
                     InputStream in = con.getInputStream();
                     this.body = streamReader(in);
 
-                    this.ja = new JSONArray(this.body);
+                    this.jsons = new JSONArray(this.body);
 
-                    tasks = ja.length();
-                    //createStationsJSON(lines, vFile);
 
                     if (!vFile.exists()) {
                         if (vFile.createNewFile()) {
@@ -111,28 +103,20 @@ public class tkkDataMod {
                     }
                 } else {
 
-                    this.ja = jsonFileReader(vFile);
+                    this.jsons = jsonFileReader(vFile);
 
                 }
                 if (update) {
                     instance.deleteAllStations();
-                    try {
-                        for (int i = 0; i < this.ja.length(); ++i) {
-                            JSONObject json = this.ja.getJSONObject(i);
-                            String name;
-                            String url;
 
-                            name = json.getString("name");
-                            url = json.getString("url");
-                            instance.stations.add(dataSource.createStation(name, Uri.parse(url), defaultIcon, i, _activity));
+                    for (int i = 0; i < this.jsons.length(); ++i) {
+                        JSONObject json = this.jsons.getJSONObject(i);
+                        String name = json.getString("name");
+                        String url = json.getString("url");
+                        instance.stations.add(dataSource.createStation(name, Uri.parse(url), defaultIcon, i, _activity));
 
 
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-
-
                 }
             }catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -148,7 +132,6 @@ public class tkkDataMod {
 
         protected void onPostExecute(Integer result) {
             Callbacks cb = (Callbacks)_activity;
-            completes = 0;
             cb.onDataLoaded(instance.stations);
 
         }
@@ -158,13 +141,10 @@ public class tkkDataMod {
             try {
                 writer = new FileOutputStream(vFile, false);
                 writer.write(this.body.getBytes());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             Log.i("FILE WRITER", "Finished writing to stations.json");
-
         }
 
         private String streamReader(InputStream inputStream) throws IOException {
@@ -187,15 +167,124 @@ public class tkkDataMod {
                     lines += line;
                 }
                 temp = new JSONArray(lines);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
             return temp;
         }
     }
-/*
+
+    private tkkDataMod(){
+    }
+
+
+    //Used to create tkkDataMod singleton
+    public static tkkDataMod getInstance(Activity activity){
+
+        if(instance == null) {
+            instance = new tkkDataMod();
+            instance.stations = new ArrayList<>();
+            // uncomment to delete the database
+            //TkkActivity.getTkkContext().deleteDatabase("stations.db");
+
+            instance._activity = activity;
+            instance.dataSource = new tkkStationsDataSource(instance._activity.getApplicationContext());
+
+
+            try {
+
+                instance.dataSource.open();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            instance.populateStations();
+        }
+        return instance;
+    }
+
+
+    //Called to populate the stations list
+    private void populateStations(){
+        GetServerDataTask reader = new GetServerDataTask();
+        reader.execute();
+    }
+
+    //Deletes current stations list and table entries and pulls fresh list from the server
+    public void repopulateStations(){
+        instance.deleteAllStations();
+        GetServerDataTask reader = new GetServerDataTask(true);
+        reader.execute();
+    }
+
+    public void moveStation(int idx, int newIdx){
+        moveStation(getStationAt(idx), newIdx);
+    }
+
+    public void moveStation(tkkStation s, int newIdx){
+        stations.remove(s);
+        stations.add(newIdx,s);
+        int start = s.getIndex() <= newIdx ? s.getIndex() : newIdx;
+
+        for (int i = start; i < stations.size(); ++i){
+            stations.get(i).setIndex(i);
+        }
+
+        dataSource.updateStation(s, _activity);
+    }
+
+    public void removeStationAt(int i){
+       // tkkStation s = stations.get(i);
+        dataSource.deleteStation(stations.get(i));
+        stations.remove(i);
+    }
+
+    public void deleteAllStations() {
+        stations = null;
+        stations = new ArrayList<>();
+        dataSource.deleteAll();
+    }
+
+    public tkkStation getStationAt(int idx) {
+        return stations.get(idx);
+    }
+
+    public ArrayList<tkkStation> getStations(){
+        return stations;
+    }
+
+
+    public void destroyInstance(){
+        closeDataSource();
+        instance = null;
+    }
+
+    public void closeDataSource(){
+        this.dataSource.close();
+    }
+
+    //region Description:Unused methods according to AS
+  /*  public void addStationAt(int idx, tkkStation s){
+        stations.set(idx, s);
+    }
+
+    public void removeStation(tkkStation s){
+        dataSource.deleteStation(s);
+        stations.remove(s);
+    }
+
+    public void setStations(ArrayList<tkkStation> s) {
+        if(stations != null){
+            stations.clear();
+        }
+        stations = s;
+    }
+
+    public void addStation(tkkStation s){
+        //dataSource.createStation()
+        stations.add(s);
+    }
+
     private class CreateStationTask extends AsyncTask<Void, Integer, Integer>{
 
         private Bitmap bitmap;
@@ -239,116 +328,7 @@ public class tkkDataMod {
             }
         }
     }
+
 */
-    private tkkDataMod(){
-    }
-
-
-    //Used to create tkkDataMod singleton
-    public static tkkDataMod getInstance(Activity activity){
-
-        if(instance == null) {
-            instance = new tkkDataMod();
-            instance.stations = new ArrayList<>();
-            // uncomment to delete the database
-            //TkkActivity.getTkkContext().deleteDatabase("stations.db");
-
-
-            instance._activity = activity;
-            instance.dataSource = new tkkStationsDataSource(instance._activity.getApplicationContext());
-
-
-            try {
-
-                instance.dataSource.open();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            instance.populateStations();
-        }
-        return instance;
-    }
-
-
-    //Called to populate the stations list
-    private void populateStations(){
-        GetServerDataTask reader = new GetServerDataTask();
-        reader.execute();
-    }
-
-    //Deletes current stations list and table entries and pulls fresh list from the server
-    public void repopulateStations(){
-        instance.deleteAllStations();
-        GetServerDataTask reader = new GetServerDataTask(true);
-        reader.execute();
-    }
-
-    public void moveStation(int idx, int newIdx){
-        moveStation(getStationAt(idx), newIdx);
-    }
-
-    public void moveStation(tkkStation s, int newIdx){
-        stations.remove(s);
-        stations.add(newIdx,s);
-        int iter = s.getIndex() <= newIdx ? s.getIndex() : newIdx;
-
-        for (int i = iter; i < stations.size(); ++i){
-            tkkStation temp = stations.get(i);
-            temp.setIndex(i);
-            dataSource.updateStation(s, _activity);
-        }
-    }
-
-    public void removeStationAt(int i){
-        tkkStation s = stations.get(i);
-        dataSource.deleteStation(s);
-        stations.remove(i);
-    }
-
-    public void deleteAllStations() {
-        stations = null;
-        stations = new ArrayList<>();
-        dataSource.deleteAll();
-    }
-
-    public tkkStation getStationAt(int idx) {
-        return stations.get(idx);
-    }
-
-    public ArrayList<tkkStation> getStations(){
-        return stations;
-    }
-
-    //region Description:Unused methods according to AS
-    public void addStationAt(int idx, tkkStation s){
-        stations.set(idx, s);
-    }
-
-    public void removeStation(tkkStation s){
-        dataSource.deleteStation(s);
-        stations.remove(s);
-    }
-
-    public void setStations(ArrayList<tkkStation> s) {
-        if(stations != null){
-            stations.clear();
-        }
-        stations = s;
-    }
-
-    public void addStation(tkkStation s){
-        //dataSource.createStation()
-        stations.add(s);
-    }
-
-    public void destroyInstance(){
-        closeDataSource();
-        instance = null;
-    }
-
-    public void closeDataSource(){
-        this.dataSource.close();
-    }
     //endregion
 }
