@@ -12,6 +12,33 @@ import com.smaato.soma.interstitial.InterstitialAdListener;
  *    *********     **********             ******    ********
  */
 
+//BEGIN COPY-PASTE HERE!!!
+
+
+/*****************************************************************
+ * ***************************************************************
+ * ****************Instructions for Synchronizing ****************
+ * *************This File Between Ad Support Versions*************
+ * ***************************************************************
+ * *** Copying/Pasting between version of this file but **********
+ * *** but different ad support companies can be accomplished*****
+ * *** as follows: The section to be copy/pasted starts with******
+ * *** this comment block and continues down to the comment*******
+ * *** block marking the beginning of the Ad Support code*********
+ * *** section. DO NOT copy or past over the import code above****
+ * *** or the Ad Support section below the comment block which****
+ * *** marks it. For Smaato Ad Support, uncomment the following:**
+ * *** In the class declaration statement, uncomment the**********
+ * *** interface: --> /*, InterstitialAdListener*/   /************
+ * *** For One by AOL Ad Support, comment that interface**********
+ * *** declaration out including the comma! For Smaato Ad*********
+ * *** Support, also uncomment the line in the method*************
+ * *** onDataLoaded() ---> //interstitial.asyncLoadNewBanner();***
+ * *** For One by AOL comment that line back out as noted*********
+ * *** That should do it!*****************************************
+ * ***************************************************************
+ */
+
 
 
 import android.app.Notification;
@@ -281,7 +308,7 @@ public class TkkActivity extends AppCompatActivity
     public void onDataLoaded(ArrayList<tkkStation> stations) {
         progBar.setVisibility(View.GONE);
         displayListView();
-        //interstitial.asyncLoadNewBanner();
+        interstitial.asyncLoadNewBanner();
     }
 
     //callback method for TkkWebViewFragment.Callbacks
@@ -328,6 +355,15 @@ public class TkkActivity extends AppCompatActivity
             nm.notify(1, builder.build());
         }
     }
+
+    /******************************************
+     * ****************************************
+     * ****************************************
+     * ****************************************
+     *
+     */
+
+    //END COPY-PASTE HERE!!!
 
 
     /***************************************************
