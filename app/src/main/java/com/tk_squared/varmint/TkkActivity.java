@@ -4,6 +4,7 @@ package com.tk_squared.varmint;
  * *********       Ad Support Section        ******** *******
  */
 //Smaato
+import android.widget.RelativeLayout;
 import com.smaato.soma.BannerView;
 import com.smaato.soma.interstitial.Interstitial;
 import com.smaato.soma.interstitial.InterstitialAdListener;
@@ -37,7 +38,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.support.v7.widget.ShareActionProvider;
 
 
@@ -103,15 +103,16 @@ public class TkkActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-        if (fragment instanceof TkkWebViewFragment &&
-                ((TkkWebViewFragment) fragment).getWebview().canGoBack()) {
-            ((TkkWebViewFragment) fragment).getWebview().goBack();
-        } else if (fm.getBackStackEntryCount() > 2) {
-            if (fragment instanceof TkkWebViewFragment){
+        if (fragment instanceof TkkWebViewFragment){
+            if (((TkkWebViewFragment) fragment).getWebview().canGoBack()) {
+                ((TkkWebViewFragment) fragment).getWebview().goBack();
+            } else  {
                 ((TkkWebViewFragment) fragment).getWebview().clearCache(true);
                 ((TkkWebViewFragment) fragment).getWebview().destroy();
+                if (fm.getBackStackEntryCount() > 1) {
+                    fm.popBackStack();
+                }
             }
-            fm.popBackStack();
         } else {
             super.onBackPressed();
         }
@@ -149,7 +150,6 @@ public class TkkActivity extends AppCompatActivity
         switch (item.getItemId()) {
             //Get new list
             case R.id.action_fetch:
-                displaySplashFragment();
                 progBar.setVisibility(View.VISIBLE);
                 tuxData.repopulateStations();
                 ((ArrayAdapter)((TkkListViewFragment)fm.findFragmentById(R.id.fragment_container))
@@ -192,17 +192,23 @@ public class TkkActivity extends AppCompatActivity
 
     @Override
     public void onDestroy(){
+        tuxData.destroyInstance();
         //This doesn't really work
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
         adCleanup();
         super.onDestroy();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
     }
     //endregion
 
     //region Description: Fragment handling
     private void displaySplashFragment(){
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-        if (!(fragment instanceof SplashFragment)) {
+        if (fragment == null) {
             fragment = new SplashFragment();
             fm.beginTransaction()
                     .add(R.id.fragment_container, fragment)
@@ -275,7 +281,7 @@ public class TkkActivity extends AppCompatActivity
     public void onDataLoaded(ArrayList<tkkStation> stations) {
         progBar.setVisibility(View.GONE);
         displayListView();
-        interstitial.asyncLoadNewBanner();
+        //interstitial.asyncLoadNewBanner();
     }
 
     //callback method for TkkWebViewFragment.Callbacks

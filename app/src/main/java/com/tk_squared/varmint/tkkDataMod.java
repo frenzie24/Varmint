@@ -72,11 +72,11 @@ public class tkkDataMod {
             System.out.println(stations.size());
 
             try {
-                // URL url = new URL(_activity.getString(R.string.stations_list_url));
                 defaultIcon = BitmapFactory.decodeResource(_activity.getApplicationContext()
                         .getResources(), R.drawable.ic_launcher);
                 File vFile = new File(_activity.getApplicationContext().getFilesDir(), "stations.json");
                 if (!update) {
+                    // URL url = new URL(_activity.getString(R.string.stations_list_url));
                     URL url = new URL("http://tk-squared.com/Varmint/stations_.json");
                     URLConnection con = url.openConnection();
 
@@ -187,6 +187,7 @@ public class tkkDataMod {
             // uncomment to delete the database
             //TkkActivity.getTkkContext().deleteDatabase("stations.db");
 
+
             instance._activity = activity;
             instance.dataSource = new tkkStationsDataSource(instance._activity.getApplicationContext());
 
@@ -227,6 +228,7 @@ public class tkkDataMod {
         int start = s.getIndex() <= newIdx ? s.getIndex() : newIdx;
 
         for (int i = start; i < stations.size(); ++i){
+
             stations.get(i).setIndex(i);
         }
 
