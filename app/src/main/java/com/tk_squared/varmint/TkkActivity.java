@@ -1,46 +1,9 @@
 package com.tk_squared.varmint;
 
-/**************************************************************
- * *********       Ad Support Section        ******** *******
- */
-//Smaato
-import android.widget.RelativeLayout;
-import com.smaato.soma.BannerView;
-import com.smaato.soma.interstitial.Interstitial;
-import com.smaato.soma.interstitial.InterstitialAdListener;
-/*************************************************************
- *    *********     **********             ******    ********
- */
-
-//BEGIN COPY-PASTE HERE!!!
-
-
-/*****************************************************************
- * ***************************************************************
- * ****************Instructions for Synchronizing ****************
- * *************This File Between Ad Support Versions*************
- * ***************************************************************
- * *** Copying/Pasting between version of this file but **********
- * *** but different ad support companies can be accomplished*****
- * *** as follows: The section to be copy/pasted starts with******
- * *** this comment block and continues down to the comment*******
- * *** block marking the beginning of the Ad Support code*********
- * *** section. DO NOT copy or past over the import code above****
- * *** or the Ad Support section below the comment block which****
- * *** marks it. For Smaato Ad Support, uncomment the following:**
- * *** In the class declaration statement, uncomment the**********
- * *** interface: --> /*, InterstitialAdListener*/   /************
- * *** For One by AOL Ad Support, comment that interface**********
- * *** declaration out including the comma! For Smaato Ad*********
- * *** Support, also uncomment the line in the method*************
- * *** onDataLoaded() ---> //interstitial.asyncLoadNewBanner();***
- * *** For One by AOL comment that line back out as noted*********
- * *** That should do it!*****************************************
- * ***************************************************************
- */
-
-
-
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -61,7 +24,6 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -74,7 +36,7 @@ import android.support.v7.widget.ShareActionProvider;
  */
 public class TkkActivity extends AppCompatActivity
         implements TkkListViewFragment.Callbacks, tkkDataMod.Callbacks,
-        TkkWebViewFragment.Callbacks, InterstitialAdListener {
+        TkkWebViewFragment.Callbacks {
 
     //region Description: Variables and Accessors
     private tkkDataMod tuxData;
@@ -93,10 +55,11 @@ public class TkkActivity extends AppCompatActivity
     public boolean getListEditEnabled() {
         return listEditEnabled;
     }
-    private Handler handler = new Handler();
+    private Handler handler = new Handler(); public Handler getHandler() {return handler;}
     private MusicIntentReceiver musicIntentReceiver;
-    private boolean interstitialShowing = false;
-
+    private Runnable r;
+    private ServiceConnection mConnection;
+    private AdSupport adSupport = new AdSupport(this);
     //endregion
 
     public TkkActivity() {
@@ -117,7 +80,7 @@ public class TkkActivity extends AppCompatActivity
             progBar.setVisibility(View.VISIBLE);
         }
 
-        setupAdSupport();
+        adSupport.setupAdSupport();
 
         //Set up the headphone jack listener
         musicIntentReceiver = new MusicIntentReceiver(this);
@@ -211,6 +174,7 @@ public class TkkActivity extends AppCompatActivity
 
     @Override
     public void onResume(){
+        mConnection = null;
         IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(musicIntentReceiver, filter);
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
@@ -219,10 +183,11 @@ public class TkkActivity extends AppCompatActivity
 
     @Override
     public void onDestroy(){
+        handler.removeCallbacks(r);
         tuxData.destroyInstance();
         //This doesn't really work
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancelAll();
-        adCleanup();
+        adSupport.adCleanup();
         super.onDestroy();
     }
 
@@ -254,7 +219,7 @@ public class TkkActivity extends AppCompatActivity
                     .commit();
         }
         //Auto-return from about screen.
-        Runnable r = new Runnable() {
+        r = new Runnable() {
             @Override
             public void run() {
                 if (fm.getBackStackEntryCount() > 0) {
@@ -299,7 +264,7 @@ public class TkkActivity extends AppCompatActivity
     //Callback method for TuxedoActivityFragment.Callbacks
     @Override
     public void onStationSelected(tkkStation station) {
-        showInterstitial();
+        adSupport.showInterstitial();
         displayWebView(station);
     }
 
@@ -308,7 +273,7 @@ public class TkkActivity extends AppCompatActivity
     public void onDataLoaded(ArrayList<tkkStation> stations) {
         progBar.setVisibility(View.GONE);
         displayListView();
-        interstitial.asyncLoadNewBanner();
+        adSupport.loadInterstitial();
     }
 
     //callback method for TkkWebViewFragment.Callbacks
@@ -338,121 +303,35 @@ public class TkkActivity extends AppCompatActivity
         }
     }
 
-    private void sendNotification(){
-        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-        if (fragment instanceof TkkWebViewFragment){
-            Notification.Builder builder = new Notification.Builder(this)
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setContentText(getString(R.string.app_name))
-                    .setContentText(((TkkWebViewFragment) fragment).getCurrentName());
-            Intent intent = new Intent(this, TkkActivity.class);
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this)
-                    .addParentStack(TkkActivity.class)
-                    .addNextIntent(intent);
-            PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentIntent(pendingIntent);NotificationManager nm =
-                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            nm.notify(1, builder.build());
+
+    private void sendNotification() {
+        final Fragment fragment = fm.findFragmentById(R.id.fragment_container);
+        if (fragment instanceof TkkWebViewFragment) {
+            mConnection = new ServiceConnection() {
+                public void onServiceConnected(ComponentName className, IBinder binder) {
+                    ((NotificationKillerService.KillBinder) binder).service.startService(new Intent(
+                            TkkActivity.this, NotificationKillerService.class));
+                    Notification.Builder builder = new Notification.Builder(fragment.getActivity())
+                            .setSmallIcon(R.drawable.ic_launcher)
+                            .setContentText(getString(R.string.app_name))
+                            .setContentText(((TkkWebViewFragment) fragment).getCurrentName());
+                    Intent intent = new Intent(fragment.getActivity(), TkkActivity.class);
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(fragment.getActivity())
+                            .addParentStack(TkkActivity.class)
+                            .addNextIntent(intent);
+                    PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    builder.setContentIntent(pendingIntent);
+                    NotificationManager nm =
+                            (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    nm.notify(NotificationKillerService.NOTIFICATION_ID, builder.build());
+                }
+
+                public void onServiceDisconnected(ComponentName className) {
+                }
+            };
+            bindService(new Intent(TkkActivity.this, NotificationKillerService.class), mConnection,
+                    Context.BIND_AUTO_CREATE);
         }
     }
 
-    /******************************************
-     * ****************************************
-     * ****************************************
-     * ****************************************
-     *
-     */
-
-    //END COPY-PASTE HERE!!!
-
-
-    /***************************************************
-     * ******     Ad Support Section      *****  ******
-     */
-    private Interstitial interstitial;
-
-    /***************************************************
-     *            ****************         ***** ******
-     */
-
-    private void showInterstitial(){
-        if(interstitial.isInterstitialReady()){
-            interstitial.show();
-        }
-    }
-
-
-    private void setupAdSupport(){
-        //Set up interstitial ads
-        setInterstitialAd();
-        //Set up banner ads
-        setupSmaato();
-    }
-
-    private void setInterstitialAd(){
-        interstitial = new Interstitial(this);
-        interstitial.setInterstitialAdListener(this);
-        interstitial.getAdSettings().setPublisherId(getResources().getInteger(R.integer.smaato_pub_id));
-        interstitial.getAdSettings().setAdspaceId(getResources().getInteger(R.integer.smaato_ad_id));
-    }
-
-    private void interBannerLoad(){
-        Runnable r = new Runnable(){
-            @Override
-            public void run(){
-                interstitial.asyncLoadNewBanner();
-            }
-        };
-        handler.postDelayed(r,getResources().getInteger(R.integer.smaato_interstitial_reload_delay));
-    }
-
-    //region Description:Callback methods for InterstitialListener
-    @Override
-    public void onReadyToShow(){
-        //We'll let ya know
-    }
-
-    @Override
-    public void onWillShow(){
-        //Rejoice!
-    }
-
-    @Override
-    public void onFailedToLoadAd(){
-        //sh*t happens
-        interBannerLoad();
-    }
-
-    @Override
-    public void onWillClose(){
-        interBannerLoad();
-    }
-
-    @Override
-    public void onWillOpenLandingPage(){
-        //$$!
-    }
-    //endregion
-
-
-    private void setupSmaato(){
-        BannerView bv = new BannerView(this);
-        bv.setAutoReloadEnabled(true);
-        bv.setAutoReloadFrequency(getResources().getInteger(R.integer.smaato_reload_delay));
-
-        RelativeLayout relativeLayout = (RelativeLayout)findViewById(R.id.ad_container);
-        if (relativeLayout != null){
-            relativeLayout.addView(bv, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-        }
-
-        bv.getAdSettings().setPublisherId(getResources().getInteger(R.integer.smaato_pub_id));
-        bv.getAdSettings().setAdspaceId(getResources().getInteger(R.integer.smaato_ad_id));
-        bv.asyncLoadNewBanner();
-    }
-
-    private void adCleanup(){
-        interstitial.destroy();
-    }
-    //endregion
 }
