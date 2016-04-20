@@ -32,6 +32,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.app.AlertDialog;
+import android.widget.TextView;
 import android.widget.TextView;
 
 
