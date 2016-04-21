@@ -15,10 +15,10 @@ import com.smaato.soma.interstitial.InterstitialAdListener;
  * correct version!!
  */
 
-public class AdSupport implements InterstitialAdListener {
+class AdSupport implements InterstitialAdListener {
 
     private Interstitial interstitial;
-    private TkkActivity activity;
+    private final TkkActivity activity;
 
     public AdSupport(TkkActivity activity){
         this.activity = activity;
@@ -42,7 +42,7 @@ public class AdSupport implements InterstitialAdListener {
         interstitial = new Interstitial(activity);
         interstitial.setInterstitialAdListener(this);
         interstitial.getAdSettings().setPublisherId(activity.getResources().getInteger(R.integer.smaato_pub_id));
-        interstitial.getAdSettings().setAdspaceId(activity.getResources().getInteger(R.integer.smaato_ad_id));
+        interstitial.getAdSettings().setAdspaceId(activity.getResources().getInteger(R.integer.smaato_inter_id));
     }
 
     private void interBannerLoad(){
