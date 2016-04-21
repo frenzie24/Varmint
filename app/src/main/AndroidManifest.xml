@@ -48,7 +48,7 @@
                 <!-- note that the leading "/" is required for pathPrefix-->
                 <!-- Accepts URIs that begin with "example://gizmos” -->
                 <data android:scheme="example"
-                    android:host="Varming" />
+                    android:host="Varmint" />
             </intent-filter>
         </activity>
         <activity android:name="com.smaato.soma.interstitial.InterstitialActivity" />
