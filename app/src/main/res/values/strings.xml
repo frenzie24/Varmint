@@ -17,7 +17,7 @@
     <string name="menu_about_title">About Varmint</string>
     <string name="web_page_url">http://www.tk-squared.com/Varmint</string>
     <string name="app_id_string">com.tk_squared.varmint</string>
-    <string name="app_icon_url">http://www.tk-squared.com/Varmint/banger_icon.png</string>
+    <string name="app_icon_url">http://www.tk-squared.com/Varmint/varmint_icon.png</string>
     <string name="stations_list_url">http://tk-squared.com/Varmint/stations_.json</string>
     <integer name="smaato_pub_id">1100018452</integer>
     <integer name="smaato_ad_id">130087931</integer>
