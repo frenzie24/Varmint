@@ -353,5 +353,5 @@ public class TkkActivity extends AppCompatActivity
                     Context.BIND_AUTO_CREATE);
         }
     }
-
+    //endregion
 }

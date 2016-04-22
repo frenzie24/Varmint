@@ -52,6 +52,7 @@
             </intent-filter>
         </activity>
         <activity android:name="com.smaato.soma.interstitial.InterstitialActivity" />
+        <activity android:name="com.smaato.soma.ExpandedBannerActivity" />
         <service android:name="NotificationKillerService" />
     </application>
 

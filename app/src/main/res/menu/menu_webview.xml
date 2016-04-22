@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.tk_squared.varmint.BangerActivity">
     <item android:id="@+id/menu_item_share"
-        android:title="Share"
+        android:title="@string/share_title"
         app:showAsAction="ifRoom"
         app:actionProviderClass="android.support.v7.widget.ShareActionProvider"/>
 
