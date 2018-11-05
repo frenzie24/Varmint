@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: artifacts:SOMAAndroid-8.1.0-release">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/SOMAAndroid-8.1.0-release.aar/cc35d5701eb337fbac42936259f80adc/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/SOMAAndroid-8.1.0-release.aar/cc35d5701eb337fbac42936259f80adc/jars/libs/SMA-moat-mobile-app-kit-2.3.0-.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/SOMAAndroid-8.1.0-release.aar/cc35d5701eb337fbac42936259f80adc/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

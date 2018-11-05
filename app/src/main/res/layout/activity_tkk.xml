@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:BannerView="http://schemas.android.com/apk/lib/com.smaato.soma"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
@@ -24,6 +25,23 @@
         android:paddingBottom="100dp"
         android:layout_centerInParent="true"/>
 
+    <com.smaato.soma.BannerView
+        android:id="@+id/ad_container"
+        android:layout_height="50dp"
+        android:layout_width="320dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
+        BannerView:AdType="ALL"
+        BannerView:publisherId="@integer/smaato_pub_id"
+        BannerView:adSpaceId="@integer/smaato_ad_id"
+        BannerView:age="30"
+        BannerView:autoReloadFrequency="@integer/smaato_reload_delay"
+        BannerView:backgroundColor="#80000000"
+        BannerView:locationUpdateEnabled="true"
+        BannerView:loadNewBanner="true" />
+
+    <!--
     <RelativeLayout
         android:id="@+id/ad_container"
         android:orientation="vertical"
@@ -35,5 +53,6 @@
         android:padding="3dp"
         android:background="@color/colorThemeBackground">
     </RelativeLayout>
+    -->
 
 </RelativeLayout>

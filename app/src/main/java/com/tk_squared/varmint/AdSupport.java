@@ -1,5 +1,6 @@
 package com.tk_squared.varmint;
 
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import com.smaato.soma.BannerView;
@@ -35,7 +36,7 @@ class AdSupport implements InterstitialAdListener {
         //Set up interstitial ads
         setInterstitialAd();
         //Set up banner ads
-        setupSmaato();
+        //setupSmaato();
     }
 
     private void setInterstitialAd(){
@@ -50,16 +51,17 @@ class AdSupport implements InterstitialAdListener {
             @Override
             public void run(){
                 interstitial.asyncLoadNewBanner();
+                Log.i("SOME AdSupport", "Loading new interstitual");
             }
         };
         activity.getHandler().postDelayed(r,
-                activity.getResources().getInteger(R.integer.smaato_interstitial_reload_delay));
+                /*activity.getResources().getInteger(R.integer.smaato_interstitial_reload_delay)*/ 20);
     }
 
     //region Description:Callback methods for InterstitialListener
     @Override
     public void onReadyToShow(){
-        //We'll let ya know
+        Log.i("SOMA AdSupport", "Interstitual ready to show");
     }
 
     @Override
@@ -69,7 +71,7 @@ class AdSupport implements InterstitialAdListener {
 
     @Override
     public void onFailedToLoadAd(){
-        //sh*t happens
+        Log.i("SOMA AdSupport", "Interstitual failed to load");
         interBannerLoad();
     }
 

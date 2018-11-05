@@ -1,1 +1,1 @@
-include ':app', ':SOMAAndroidSDK5.0.3', ':android-support-multidex'
+include ':app', ':android-support-multidex', ':SOMAAndroid-8.1.0-release'

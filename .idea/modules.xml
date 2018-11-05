@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SOMAAndroidSDK5.0.3/SOMAAndroidSDK5.0.3.iml" filepath="$PROJECT_DIR$/SOMAAndroidSDK5.0.3/SOMAAndroidSDK5.0.3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SOMAAndroid-8.1.0-release/SOMAAndroid-8.1.0-release.iml" filepath="$PROJECT_DIR$/SOMAAndroid-8.1.0-release/SOMAAndroid-8.1.0-release.iml" />
       <module fileurl="file://$PROJECT_DIR$/Varmint.iml" filepath="$PROJECT_DIR$/Varmint.iml" />
       <module fileurl="file://$PROJECT_DIR$/android-support-multidex/android-support-multidex.iml" filepath="$PROJECT_DIR$/android-support-multidex/android-support-multidex.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
