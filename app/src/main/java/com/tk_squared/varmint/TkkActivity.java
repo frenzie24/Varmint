@@ -20,6 +20,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +33,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.support.v7.widget.ShareActionProvider;
 import android.widget.TextView;
+
+import com.smaato.soma.AdDownloaderInterface;
+import com.smaato.soma.AdListenerInterface;
+import com.smaato.soma.BannerView;
+import com.smaato.soma.ReceivedBannerInterface;
+import com.smaato.soma.bannerutilities.constant.BannerStatus;
 
 
 /**
@@ -81,7 +88,16 @@ public class TkkActivity extends AppCompatActivity
         }
 
         adSupport.setupAdSupport();
-
+        /*BannerView bannerView = findViewById(R.id.ad_container);
+        bannerView.addAdListener(new AdListenerInterface() {
+            @Override
+            public void onReceiveAd(AdDownloaderInterface adDownloaderInterface, ReceivedBannerInterface receivedBannerInterface) {
+                if (receivedBannerInterface.getStatus() == BannerStatus.ERROR) {
+                    Log.i("BannerAd", "" + receivedBannerInterface.getErrorCode() + " : " + receivedBannerInterface.getErrorMessage());
+                }
+            }
+        });
+        */
         //Set up the headphone jack listener
         musicIntentReceiver = new MusicIntentReceiver(this);
 

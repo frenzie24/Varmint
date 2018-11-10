@@ -23,6 +23,8 @@
     <string name="stations_list_url">http://tk-squared.com/Varmint/stations_.json</string>
     <integer name="smaato_pub_id">1100018452</integer>
     <integer name="smaato_ad_id">130087931</integer>
+    <string name="smaato_pub_id_str">1100018452</string>
+    <string name="smaato_ad_id_str">130087931</string>
     <integer name="smaato_inter_id">130097262</integer>
     <integer name="smaato_reload_delay">20</integer>
     <integer name="about_screen_delay">15000</integer>

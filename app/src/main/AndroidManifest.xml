@@ -6,6 +6,12 @@
     <!--These permissions are for Smaato Ad Support system -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-feature android:name="android.hardware.location.gps" />
+    <uses-feature android:name="android.hardware.location.network" />
+
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
@@ -42,11 +48,12 @@
                 <!-- note that the leading "/" is required for pathPrefix-->
                 <!-- Accepts URIs that begin with "example://gizmos” -->
                 <data android:scheme="example"
-                    android:host="Varmint" />
+                    android:host="varmint" />
             </intent-filter>
         </activity>
-        <activity android:name="com.smaato.soma.interstitial.InterstitialActivity" />
-        <activity android:name="com.smaato.soma.ExpandedBannerActivity" />
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
+        <activity android:name="com.smaato.soma.interstitial.InterstitialActivity" android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name="com.smaato.soma.ExpandedBannerActivity" android:configChanges="keyboardHidden|orientation|screenSize"/>
         <service android:name="NotificationKillerService" />
     </application>
 </manifest>
